@@ -56,3 +56,19 @@ async def give_money(member_id: int, amount: int):
         if user:
             await session.execute(update(User).where(User.id == member_id).values(cash=user.cash + amount))
             await session.commit()
+
+# current balance user
+async def get_balance(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(User.cash).where(User.id == member_id))
+        return result if result is not None else 0
+
+# transfer of money between users
+async def transfer_money(member_sender_id: int, member_recipient_id, amount: int):
+    async with async_session() as session:
+        member_sender_balance = await get_balance(member_sender_id)
+        member_recipient_balance = await get_balance(member_recipient_id)
+
+        await session.execute(update(User).where(User.id == member_sender_id).values(cash=member_sender_balance - amount))
+        await session.execute(update(User).where(User.id == member_recipient_id).values(cash=member_recipient_balance + amount))
+        await session.commit()
