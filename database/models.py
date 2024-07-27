@@ -18,6 +18,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(23))
     cash: Mapped[int] = mapped_column(default=0)
     count_messages: Mapped[int] = mapped_column(default=0)
+    daily: Mapped[int] = mapped_column(nullable=True)
 
 async def async_main():
     async with engine.begin() as conn:
