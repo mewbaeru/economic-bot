@@ -3,9 +3,11 @@ from sqlalchemy import select, delete, update
 
 from modules.Logger import *
 from database.models import async_session
-from database.models import User
+from database.models import User, PersonalRole
 
 from datetime import datetime, timedelta
+
+'''Users'''
 
 # add user to db
 async def add_user(member: disnake.Member):
@@ -71,4 +73,46 @@ async def transfer_money(member_sender_id: int, member_recipient_id, amount: int
 
         await session.execute(update(User).where(User.id == member_sender_id).values(cash=member_sender_balance - amount))
         await session.execute(update(User).where(User.id == member_recipient_id).values(cash=member_recipient_balance + amount))
+        await session.commit()
+
+# write-off of money from user
+async def take_money(member_id: int, amount: int):
+    async with async_session() as session:
+        await session.execute(update(User).where(User.id == member_id).values(cash=User.cash - amount))
+        await session.commit()
+
+'''Personal_roles'''
+
+# add new role to db
+async def add_role(member_id: int, role_id: int):
+    async with async_session() as session:
+        time_pay = datetime.now() + timedelta(days=30)
+        role = await session.scalar(select(PersonalRole).where(PersonalRole.id == role_id))
+        if not role:
+            session.add(PersonalRole(id=role_id, owner=member_id, time=int(time_pay.timestamp())))
+            await session.commit()
+
+# check if user has role
+async def is_exists_role(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRole.id).where(PersonalRole.owner == member_id))
+        return True if result is not None else False
+
+# get user personal roles
+async def get_all_roles(member_id: int):
+    async with async_session() as session:
+        results = await session.execute(select(PersonalRole.id).where(PersonalRole.owner == member_id))
+        return results.scalars().all()
+    
+# get time to pay
+async def get_time_to_pay(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRole.time).where(PersonalRole.owner == member_id))
+        return result if result is not None else 0
+
+# delete personal role
+async def delete_role(member_id: int):
+    async with async_session() as session:
+        role = await session.scalar(select(PersonalRole).where(PersonalRole.owner == member_id))
+        await session.delete(role)
         await session.commit()

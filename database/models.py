@@ -20,6 +20,13 @@ class User(Base):
     count_messages: Mapped[int] = mapped_column(default=0)
     daily: Mapped[int] = mapped_column(nullable=True)
 
+class PersonalRole(Base):
+    __tablename__ = 'personal_roles'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    owner: Mapped[int] = mapped_column()
+    time: Mapped[int] = mapped_column()
+
 async def async_main():
     async with engine.begin() as conn:
         # create all classes if they don't exist

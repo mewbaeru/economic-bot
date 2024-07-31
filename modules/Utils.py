@@ -4,7 +4,7 @@ class Utils:
     def __init__(self):
         self.MessageCount = {}
 
-    def get_guild_id(self):
+    def get_guild_id():
         with open('./assets/settings.json', 'r', encoding='utf-8') as settings:
             data = json.load(settings)
             
@@ -22,3 +22,17 @@ class Utils:
         self.MessageCount = {}
 
         return messages
+    
+    # info about personal roles
+    def get_personal_roles():
+        with open('./assets/settings.json', 'r', encoding='utf-8') as settings:
+            data = json.load(settings)
+
+            settings_roles = data.get('roles')
+            settings_prices = data.get('prices')
+
+            cost_role_create = settings_prices.get("role_create")
+            cost_role_change_name = settings_prices.get("role_change_name")
+            cost_role_change_color = settings_prices.get("role_change_color")
+
+            return settings_roles, cost_role_create, cost_role_change_name, cost_role_change_color
