@@ -54,11 +54,11 @@ def set_invalid_color():
 
 def set_invalid_money():
     personal_roles_embed = Embed(title="Создание роли",
-                                 description=f"На Вашем счету недостаточно средств для перевода!",
+                                 description=f"На Вашем счету недостаточно средств для приобретения роли!",
                                  color=0x2f3136)
     return personal_roles_embed
 
-def set_timeout(ctx: commands.Context):
+def set_create_role_timeout(ctx: commands.Context):
     personal_roles_embed = Embed(title="Создание роли",
                                  description=f"Время ожидания истекло!",
                                  color=0x2f3136)
@@ -96,6 +96,13 @@ def set_edit_role(ctx: commands.Context, role: disnake.role, time_pay: str, cost
                                  f"**Выдана пользователям:** {members_with_roles};\n**Время оплаты:** `{time_pay_formatted}`.",
                                  color=0x2f3136)
     personal_roles_embed.set_footer(text=f"Не забудьте положить на счет стоимость личной роли ({cost_role_create}) до следующего дня оплаты")
+    personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_roles_embed
+
+def set_manage_role_timeout(ctx: commands.Context):
+    personal_roles_embed = Embed(title="Управление личной ролью",
+                                 description=f"Время ожидания истекло!",
+                                 color=0x2f3136)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_roles_embed
 
@@ -169,14 +176,14 @@ def set_confirmation_change_color_role(ctx: commands.Context, role_color: str, c
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_roles_embed
 
-def set_confiramtion_give_role(ctx: commands.Context, role: disnake.role, member: disnake.Member):
+def set_confirmation_give_role(ctx: commands.Context, role: disnake.role, member: disnake.Member):
     personal_roles_embed = Embed(title=f"Выдача роли пользователю",
                                  description=f"{ctx.author.mention}, Вы уверены, что хотите **выдать роль** {role.mention} пользователю {member.mention}?",
                                  color=0x2f3136)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_roles_embed
 
-def set_confiramtion_take_role(ctx: commands.Context, role: disnake.role, member: disnake.Member):
+def set_confirmation_take_role(ctx: commands.Context, role: disnake.role, member: disnake.Member):
     personal_roles_embed = Embed(title=f"Забрать роль у пользователя",
                                  description=f"{ctx.author.mention}, Вы уверены, что хотите **забрать роль** {role.mention} у пользователя {member.mention}?",
                                  color=0x2f3136)
@@ -309,3 +316,86 @@ def set_invalid_change_color_role(ctx: commands.Context):
                                  color=0x2f3136)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_roles_embed
+
+# games
+def set_active_game(ctx: commands.Context, game_name: str):
+    game_embed = Embed(title=f"{game_name}",
+                       description=f"{ctx.author.mention}, у вас уже есть активная игра.",
+                       color=0x2f3136)
+    game_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return game_embed
+
+def set_not_money_for_game(ctx: commands.Context, game_name: str, balance: int):
+    game_embed = Embed(title=f"{game_name}",
+                       description=f"{ctx.author.mention}, на Вашем счету недостаточно средств для игры.",
+                       color=0x2f3136)
+    game_embed.set_footer(text=f'Ваш баланс на данный момент составляет: {balance}')
+    game_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return game_embed
+
+def set_coinflip(ctx: commands.Context, amount: int):
+    game_embed = Embed(title=f"Сыграть в монетку",
+                       description=f"{ctx.author.mention}, выберите сторону, на которую хотите поставить {amount}.",
+                       color=0x2f3136)
+    game_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return game_embed
+
+def set_duel(ctx: commands.Context, member_id: disnake.Member, amount: int):
+    if member_id is not None:
+        text_game = f"{ctx.author.mention}, хочет поиграть против {member_id.mention} на {amount}."
+    else:
+        text_game = f"{ctx.author.mention}, хочет поиграть с кем-нибудь на {amount}."
+
+    game_embed = Embed(title=f"Сыграть дуэль",
+                       description=f"{text_game}",
+                       color=0x2f3136)
+    game_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return game_embed
+
+def set_process_coinflip(ctx: commands.Context, chosen_side: str, amount: int):
+    game_embed = Embed(title=f"Сыграть в монетку",
+                       description=f"**Ставка:** {amount};\n**Выбранная сторона:** {chosen_side}.",
+                       color=0x2f3136)
+    game_embed.set_footer(text=f'Играет: {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return game_embed
+
+def set_process_duel(ctx: commands.Context, member_id: disnake.Member, amount: int):
+    game_embed = Embed(title=f"Дуэль: {ctx.author.name} vs {member_id.name}",
+                       description=f"{member_id.mention} принимает дуэль от {ctx.author.mention};\n**Ставка:** {amount}.",
+                       color=0x2f3136)
+    game_embed.set_footer(text=f'Бросил(а) вызов: {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return game_embed
+
+def set_win_coinflip(ctx: commands.Context, amount: int, balance: int):
+    game_embed = Embed(title=f"Сыграть в монетку",
+                       description=f"{ctx.author.mention}, выпал орел.\nПоздравляем, Вы **выиграли** {amount * 2}!",
+                       color=0x2f3136)
+    game_embed.set_footer(text=f'Ваш баланс на данных момент составляет: {balance}')
+    return game_embed
+
+def set_win_duel(ctx: commands.Context, winner: disnake.Member, loser: disnake.Member, amount: int):
+    game_embed = Embed(title=f"Дуэль: {winner.name} vs {loser.name}",
+                       description=f"{winner.mention}, **выигрывает** дуэль и получает {amount * 2}!",
+                       color=0x2f3136)
+    game_embed.set_footer(text=f'Бросил(а) вызов: {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    game_embed.set_thumbnail(url=winner.display_avatar.url)
+    return game_embed
+
+def set_lose_coinflip(ctx: commands.Context, amount: int, balance: int):
+    game_embed = Embed(title=f"Сыграть в монетку",
+                       description=f"{ctx.author.mention}, выпала решка.\nК сожалению, Вы **проиграли** {amount}.",
+                       color=0x2f3136)
+    game_embed.set_footer(text=f'Ваш баланс на данных момент составляет: {balance}')
+    return game_embed
+
+def set_error_duel(ctx: commands.Context, member_id: disnake.Member):
+    if member_id.id == ctx.author.id:
+        player = 'собой'
+    else:
+        player = 'ботом'
+
+    game_embed = Embed(title=f"Сыграть дуэль",
+                       description=f"{ctx.author.mention}, Вы не можете играть с {player}",
+                       color=0x2f3136)
+    game_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return game_embed
