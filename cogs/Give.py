@@ -12,7 +12,8 @@ class Give(commands.Cog):
     
     # transer money
     @commands.slash_command(name="give", description="Передать валюту", guild_ids=[guild_id])
-    async def give(ctx, member: disnake.Member, amount: int):
+    async def give(ctx, member: disnake.Member = commands.Param(description='Введите пользователя, которому хотите перевести валюту'), 
+                   amount: int = commands.Param(description='Введите сумму перевода')):
         logger.debug('/give - start')
         
         balance = await get_balance(ctx.author.id)

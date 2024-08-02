@@ -1,16 +1,13 @@
 import asyncio
-from disnake import MessageInteraction
 from disnake.ui import View, button, Button, UserSelect
 
 from modules.Logger import *
 from modules.Embeds import *
 from database.requests import add_role, take_money, get_balance, delete_role
 
-from datetime import datetime, timedelta
-
 # role creation confirmation
 class RoleConfirmationView(View):
-    def __init__(self, ctx, name, colour, settings_roles, cost_role_create, timeout=120):
+    def __init__(self, ctx, name, colour, settings_roles, cost_role_create, timeout=60):
         super().__init__(timeout=timeout)
         self.ctx = ctx
         self.name = name
@@ -19,7 +16,7 @@ class RoleConfirmationView(View):
         self.cost_role_create = cost_role_create
 
     async def on_timeout(self):
-        embed = set_timeout(self.ctx)
+        embed = set_create_role_timeout(self.ctx)
         await self.ctx.send(embed=embed, view=View())
     
     @button(label='Да', custom_id='btn_yes')
@@ -46,16 +43,19 @@ class RoleConfirmationView(View):
             await interaction.message.delete()
 
 # role manage
-class RolesEdit(View):
-    def __init__(self, ctx, role, time_pay, cost_role_create, cost_role_change_name, cost_role_change_color, timeout=120):
-        super().__init__(timeout=timeout)
-        self.ctx = ctx
-        self.role = role
-        self.time_pay = time_pay
-        self.cost_role_create = cost_role_create
+class RolesEdit(View): 
+    def __init__(self, ctx, role, time_pay, cost_role_create, cost_role_change_name, cost_role_change_color, timeout=120): 
+        super().__init__(timeout=timeout) 
+        self.ctx = ctx 
+        self.role = role 
+        self.time_pay = time_pay 
+        self.cost_role_create = cost_role_create 
         self.cost_role_change_name = cost_role_change_name
-        self.cost_role_change_color = cost_role_change_color
+        self.cost_role_change_color = cost_role_change_color 
         self.button_back = Button(label='Отмена', custom_id='btn_back')
+    
+    async def on_timeout(self):
+        return
     
     async def button_callback_back(self, interaction):
                 if interaction.user.id == self.ctx.author.id:
@@ -63,7 +63,7 @@ class RolesEdit(View):
                     await interaction.response.edit_message(embed=embed, view=RolesEdit(self.ctx, self.role, self.time_pay, self.cost_role_create, 
                                                                                         self.cost_role_change_name, self.cost_role_change_color))
                     return
-    
+
     async def button_callback_no_verify(self, interaction):
                             if interaction.user.id == self.ctx.author.id:
                                 embed = set_edit_role(self.ctx, self.role, self.time_pay, self.cost_role_create)
@@ -85,7 +85,7 @@ class RolesEdit(View):
             try:
                 def check(message):
                         return interaction.user == message.author
-                message = await self.ctx.bot.wait_for('message', timeout=30.0, check=check)
+                message = await self.ctx.bot.wait_for('message', timeout=60.0, check=check)
             except asyncio.TimeoutError:
                 embed = set_invalid_change_role(self.ctx)
                 await interaction.followup.send(embed=embed, view=View())
@@ -126,7 +126,7 @@ class RolesEdit(View):
 
             embed = set_confirmation_change_name_role(self.ctx, message.content, self.cost_role_change_name)
             await interaction.edit_original_response(embed=embed, view=view_verify)
-    
+
     @button(label='Изменить цвет', custom_id='btn_change_color')
     async def button_change_color(self, button, interaction):
         view = View()
@@ -142,7 +142,7 @@ class RolesEdit(View):
             try:
                 def check(message):
                     return interaction.user == message.author
-                message = await self.ctx.bot.wait_for('message', timeout=30.0, check=check)
+                message = await self.ctx.bot.wait_for('message', timeout=60.0, check=check)
                 try:
                     if message:
                         await message.delete()
@@ -185,7 +185,7 @@ class RolesEdit(View):
 
             embed = set_confirmation_change_color_role(self.ctx, message.content, self.cost_role_change_color)
             await interaction.edit_original_response(embed=embed, view=view_verify)
-    
+
     @button(label='Выдать роль', custom_id='btn_give_role')
     async def button_give_role(self, button, interaction):
         view = View()
@@ -245,9 +245,9 @@ class RolesEdit(View):
             view_verify.add_item(button_yes_verify)
             view_verify.add_item(button_no_verify)
 
-            embed = set_confiramtion_give_role(self.ctx, self.role, selected_user)
+            embed = set_confirmation_give_role(self.ctx, self.role, selected_user)
             await interaction.response.edit_message(embed=embed, view=view_verify)
-    
+
     @button(label='Забрать роль', custom_id='btn_take_role')
     async def button_take_role(self, button, interaction):
         view = View()
@@ -312,9 +312,9 @@ class RolesEdit(View):
             view_verify.add_item(button_yes_verify)
             view_verify.add_item(button_no_verify)
 
-            embed = set_confiramtion_take_role(self.ctx, self.role, selected_user)
+            embed = set_confirmation_take_role(self.ctx, self.role, selected_user)
             await interaction.response.edit_message(embed=embed, view=view_verify)
-    
+
     @button(label='Удалить роль', custom_id='delete_role')
     async def delete_role(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
