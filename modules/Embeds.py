@@ -2,8 +2,8 @@ import disnake
 from disnake.ext import commands
 from disnake import Embed
 
+import time
 from datetime import datetime, timedelta
-from random import randint
 
 # timely embeds
 def set_timely_embed(ctx: commands.Context, money: int):
@@ -21,7 +21,7 @@ def set_time_left_embed(ctx: commands.Context, time_left: timedelta):
     if hours > 0:
         time_left_str = f"`{hours:02d} ч. {minutes:02d} мин.`"
     else:
-        time_left_str = f"{minutes:02d} мин.`"
+        time_left_str = f"`{minutes:02d} мин.`"
 
     timely_embed = Embed(title="Ежедневная награда",
                         description=f"{ctx.author.mention}, Вы уже забрали свои монеты!\n Возвращайтесь через {time_left_str}",
@@ -87,13 +87,12 @@ def set_manage_role(ctx: commands.Context):
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_roles_embed
 
-def set_edit_role(ctx: commands.Context, role: disnake.role, time_pay: str, cost_role_create: int):
-    time_pay_formatted = time_pay.strftime("%Y-%m-%d")
+def set_edit_role(ctx: commands.Context, role: disnake.role, time_pay: int, cost_role_create: int):
     members_with_roles = ', '.join([member.mention for member in ctx.guild.members if member != ctx.author and role in member.roles]) or "нет пользователей с этой ролью"
 
     personal_roles_embed = Embed(title=f"Управление личной ролью",
                                  description=f"**Название роли:** {role.mention};\n**Цвет роли:** `{role.color}`;\n" \
-                                 f"**Выдана пользователям:** {members_with_roles};\n**Время оплаты:** `{time_pay_formatted}`.",
+                                 f"**Выдана пользователям:** {members_with_roles};\n**Время оплаты:** <t:{time_pay}>.",
                                  color=0x2f3136)
     personal_roles_embed.set_footer(text=f"Не забудьте положить на счет стоимость личной роли ({cost_role_create}) до следующего дня оплаты")
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -399,3 +398,55 @@ def set_error_duel(ctx: commands.Context, member_id: disnake.Member):
                        color=0x2f3136)
     game_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return game_embed
+
+# balance
+def set_balance_user(ctx: commands.Context, member_id: disnake.Member, balance: int):
+    balance_embed = Embed(title=f"Текущий баланс - {member_id.name}",
+                       color=0x2f3136)
+    balance_embed.add_field(name="Монеты пользователя:", value=f"```{balance}```")
+    balance_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return balance_embed
+
+def set_error_balance(ctx: commands.Context):
+    balance_embed = Embed(title=f"Посмотреть баланс",
+                       description=f"{ctx.author.mention}, Вы не можете посмотреть баланс бота.",
+                       color=0x2f3136)
+    balance_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return balance_embed
+
+def set_invalid_user_balance(ctx: commands.Context):
+    balance_embed = Embed(title=f"Посмотреть баланс",
+                       description=f"{ctx.author.mention}, выбранный Вами пользователь не найден.",
+                       color=0x2f3136)
+    balance_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return balance_embed
+
+# transaction
+def set_transaction(user: disnake.Member, transactions: list, page: int, total_pages: int):
+    page_transactions = transactions[(page-1)*10:page*10]
+
+    transaction_embed = Embed(title=f"Транзакции - {user.name}",
+                              color=0x2f3136)
+    description = ''
+    
+    for category, value, time in page_transactions:
+        description += f"◦ <t:{time}> — {category} {value}\n\n"
+    
+    transaction_embed.description = description
+    transaction_embed.set_thumbnail(url=user.display_avatar.url)
+    transaction_embed.set_footer(text=f"Страница {page} из {total_pages}")
+    return transaction_embed
+
+def set_not_transaction(ctx: commands.Context):
+    transaction_embed = Embed(title=f"Посмотреть транзакции",
+                       description=f"{ctx.author.mention}, у пользователя еще нет транзакций.",
+                       color=0x2f3136)
+    transaction_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return transaction_embed
+
+def set_error_transaction(ctx: commands.Context):
+    transaction_embed = Embed(title=f"Посмотреть транзакции",
+                       description=f"{ctx.author.mention}, Вы не можете посмотреть транзакции бота.",
+                       color=0x2f3136)
+    transaction_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return transaction_embed

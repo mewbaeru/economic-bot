@@ -1,7 +1,6 @@
-from disnake import Option
 from disnake.ext import commands
 
-from database.requests import get_balance, transfer_money
+from database.requests import get_balance, transfer_money, add_transaction
 from modules import *
 
 guild_id = Utils.get_guild_id()
@@ -23,7 +22,11 @@ class Give(commands.Cog):
         
         if balance > amount and amount > 0:
             await transfer_money(ctx.author.id, member.id, amount)
-            logger.info(f"{ctx.author.name} передал {member.name} {amount} валюты")
+
+            logger.info(f"/give - sender: {ctx.author.name} - recipient: {member.name} - amount: {amount}")
+            # add new transaction
+            await add_transaction(ctx.author.id, f'Перевод валюты пользователю {member.mention}', -amount, datetime.now())
+            await add_transaction(member.id, f'Перевод валюты от пользователя {ctx.author.mention}', +amount, datetime.now())
 
             embed = set_give_money(ctx, member, amount)
             await ctx.response.send_message(embed=embed)

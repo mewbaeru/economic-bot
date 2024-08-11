@@ -3,7 +3,7 @@ from disnake.ui import View, button, Button, UserSelect
 
 from modules.Logger import *
 from modules.Embeds import *
-from database.requests import add_role, take_money, get_balance, delete_role
+from database.requests import add_role, take_money, get_balance, delete_role, add_transaction
 
 # role creation confirmation
 class RoleConfirmationView(View):
@@ -30,7 +30,10 @@ class RoleConfirmationView(View):
 
             await add_role(self.ctx.author.id, role.id)
             await take_money(self.ctx.author.id, self.cost_role_create)
+
             logger.info(f'/create role - owner: {self.ctx.author.id} - role_id: {role.id}')
+            # add new transaction
+            await add_transaction(self.ctx.author.id, f'Создание роли {role.mention}', -self.cost_role_create, datetime.now())
 
             embed = set_create_role(self.ctx, role)
             self.stop()
@@ -58,17 +61,15 @@ class RolesEdit(View):
         return
     
     async def button_callback_back(self, interaction):
-                if interaction.user.id == self.ctx.author.id:
-                    embed = set_edit_role(self.ctx, self.role, self.time_pay, self.cost_role_create)
-                    await interaction.response.edit_message(embed=embed, view=RolesEdit(self.ctx, self.role, self.time_pay, self.cost_role_create, 
-                                                                                        self.cost_role_change_name, self.cost_role_change_color))
-                    return
+        if interaction.user.id == self.ctx.author.id:
+            embed = set_edit_role(self.ctx, self.role, self.time_pay, self.cost_role_create)
+            await interaction.response.edit_message(embed=embed, view=self)
+            return
 
     async def button_callback_no_verify(self, interaction):
-                            if interaction.user.id == self.ctx.author.id:
-                                embed = set_edit_role(self.ctx, self.role, self.time_pay, self.cost_role_create)
-                                await interaction.response.edit_message(embed=embed, view=RolesEdit(self.ctx, self.role, self.time_pay, self.cost_role_create,
-                                                                                    self.cost_role_change_name, self.cost_role_change_color))
+        if interaction.user.id == self.ctx.author.id:
+            embed = set_edit_role(self.ctx, self.role, self.time_pay, self.cost_role_create)
+            await interaction.response.edit_message(embed=embed, view=self)
 
     @button(label='Изменить название', custom_id='btn_change_name')
     async def button_change_name(self, button, interaction):
@@ -102,6 +103,12 @@ class RolesEdit(View):
                         if len(message.content) <= 100:
                             await take_money(self.ctx.author.id, self.cost_role_change_name)
                             await self.role.edit(name=f'{message.content}')
+
+                            logger.info(f'/change name role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_name: {message.content}')
+                            # add new transaction
+                            await add_transaction(self.ctx.author.id, f'Изменение названия роли {self.role.mention} на {message.content}', 
+                                                  -self.cost_role_change_name, datetime.now())
+                            
 
                             embed = set_success_change_name_role(self.ctx, self.role)
                             await interaction.response.edit_message(embed=embed, view=View())
@@ -171,6 +178,11 @@ class RolesEdit(View):
                         await take_money(self.ctx.author.id, self.cost_role_change_color)
                         await self.role.edit(color=colour)
 
+                        logger.info(f'/change color role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_color: {colour}')
+                        # add new transaction
+                        await add_transaction(self.ctx.author.id, f'Изменение цвета роли {self.role.mention} на {colour}', 
+                                              -self.cost_role_change_color, datetime.now())
+                        
                         embed = set_success_change_color_role(self.ctx, self.role)
                         await interaction.response.edit_message(embed=embed, view=View())
                     else:

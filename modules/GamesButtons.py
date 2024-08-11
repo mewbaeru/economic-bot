@@ -3,7 +3,7 @@ from disnake.ui import View, button, Button
 
 from modules.Logger import *
 from modules.Embeds import *
-from database.requests import take_money, give_money, get_balance
+from database.requests import take_money, give_money, get_balance, add_transaction
 
 import random
 
@@ -25,7 +25,8 @@ class CoinflipView(View):
         await self.handle_game(interaction, 'Решка')
     
     async def on_timeout(self):
-        self.utils.stop_game(self.ctx.author.id)
+        if self.ctx.author.id in self.utils.ActiveGames:
+            self.utils.stop_game(self.ctx.author.id)
         return
     
     async def handle_game(self, interaction, chosen_side):
@@ -46,13 +47,20 @@ class CoinflipView(View):
 
         if random_win == chosen_side:
             await give_money(self.ctx.author.id, self.amount * 2)
+            
+            logger.info(f'/coinflip - player: {self.ctx.author.id} - award: {self.amount * 2}')
+            # add new transaction
+            await add_transaction(self.ctx.author.id, f'Игра в монетку', +self.amount * 2, datetime.now())
+
             embed = set_win_coinflip(self.ctx, self.amount, await get_balance(self.ctx.author.id))
-            logger.info(f'/coinflip - player {self.ctx.author.id} - win {self.amount * 2}')
         else:
             await take_money(self.ctx.author.id, self.amount)
+
+            logger.info(f'/coinflip - player: {self.ctx.author.id} - defeat: {self.amount}')
+            # add new transaction
+            await add_transaction(self.ctx.author.id, f'Игра в монетку', -self.amount, datetime.now())
+
             embed = set_lose_coinflip(self.ctx, self.amount, await get_balance(self.ctx.author.id))
-            logger.info(f'/coinflip - player {self.ctx.author.id} - lose {self.amount}')
-        
         await interaction.edit_original_response(embed=embed, view=view)
         self.utils.stop_game(self.ctx.author.id)
     
@@ -60,7 +68,7 @@ class CoinflipView(View):
         if self.ctx.author.id == interaction.user.id:
             self.utils.start_game(self.ctx.author.id)
             embed = set_coinflip(self.ctx, self.amount)
-            await interaction.response.edit_message(embed=embed, view=CoinflipView(self.ctx, self.amount, self.utils))
+            await interaction.response.edit_message(embed=embed, view=self)
 
 # duel
 class DuelView(View):
@@ -110,4 +118,7 @@ class DuelView(View):
         embed = set_win_duel(self.ctx, winner, loser, self.amount)
         await interaction.edit_original_response(embed=embed, view=View())
         logger.info(f'/duel - winner {winner.id} - loser {loser.id} - amount {self.amount}')
+        # add new transaction
+        await add_transaction(winner.id, f'Дуэль против пользователя {loser}', +self.amount, datetime.now())
+        await add_transaction(loser.id, f'Дуэль против пользователя {winner}', -self.amount, datetime.now())
         self.utils.stop_game(self.ctx.author.id)

@@ -3,7 +3,7 @@ from sqlalchemy import select, delete, update
 
 from modules.Logger import *
 from database.models import async_session
-from database.models import User, PersonalRole
+from database.models import User, PersonalRole, Transaction
 
 from datetime import datetime, timedelta
 
@@ -108,7 +108,15 @@ async def get_all_roles(member_id: int):
 async def get_time_to_pay(member_id: int):
     async with async_session() as session:
         result = await session.scalar(select(PersonalRole.time).where(PersonalRole.owner == member_id))
-        return result if result is not None else 0
+        return result
+    
+# update time to pay
+async def update_time_to_pay(member_id: int):
+    async with async_session() as session:
+        new_time_pay = datetime.now() + timedelta(days=30)
+        if datetime.now() > PersonalRole.time:
+            await session.execute(update(PersonalRole.time).where(User.id == member_id).values(time=new_time_pay))
+            await session.commit()
 
 # delete personal role
 async def delete_role(member_id: int):
@@ -116,3 +124,29 @@ async def delete_role(member_id: int):
         role = await session.scalar(select(PersonalRole).where(PersonalRole.owner == member_id))
         await session.delete(role)
         await session.commit()
+
+'''Transactions'''
+
+# add transaction
+async def add_transaction(member_id: int, category: str, value: int, time: int):
+    async with async_session() as session:
+        session.add(Transaction(member_id=member_id, category=category, value=value, time=int(time.timestamp())))
+        await session.commit()
+
+# check if user has transaction
+async def is_exists_transaction(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(Transaction).where(Transaction.member_id == member_id))
+        return True if result is not None else False
+
+# get user transactions
+async def get_user_transactions(member_id: int):
+    async with async_session() as session:
+        results = await session.execute(select(Transaction.category, Transaction.value, Transaction.time).where(Transaction.member_id == member_id))
+        results = results.all()
+        if len(results) > 100:
+            last_transaction = await session.scalar(select(Transaction).where(Transaction.member_id == member_id).order_by(Transaction.time).limit(1))
+            await session.delete(last_transaction)
+            results = await session.execute(select(Transaction.category, Transaction.value, Transaction.time).where(Transaction.member_id == member_id))
+            results = results.all()
+        return results

@@ -27,6 +27,15 @@ class PersonalRole(Base):
     owner: Mapped[int] = mapped_column()
     time: Mapped[int] = mapped_column()
 
+class Transaction(Base):
+    __tablename__ = 'transactions'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    member_id: Mapped[int] = mapped_column()
+    category: Mapped[str] = mapped_column(String(50))
+    value: Mapped[int] = mapped_column()
+    time: Mapped[int] = mapped_column()
+
 async def async_main():
     async with engine.begin() as conn:
         # create all classes if they don't exist
