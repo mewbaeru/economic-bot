@@ -81,6 +81,18 @@ async def take_money(member_id: int, amount: int):
         await session.execute(update(User).where(User.id == member_id).values(cash=User.cash - amount))
         await session.commit()
 
+# get active marry
+async def get_marry(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(User.marry).where(User.id == member_id))
+        return result
+
+# update marry
+async def update_marry(member_id: int):
+    async with async_session() as session:
+        await session.execute(update(User).where(User.id == member_id).values(marry=True if False else False))
+        await session.commit()
+
 '''Personal_roles'''
 
 # add new role to db

@@ -20,6 +20,7 @@ class User(Base):
     cash: Mapped[int] = mapped_column(default=0)
     count_messages: Mapped[int] = mapped_column(default=0)
     daily: Mapped[int] = mapped_column(nullable=True)
+    marry: Mapped[bool] = mapped_column(default=False)
 
 class PersonalRole(Base):
     __tablename__ = 'personal_roles'
