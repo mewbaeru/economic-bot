@@ -1,7 +1,8 @@
-from sqlalchemy import String, Boolean, ForeignKey
+from sqlalchemy import String, Boolean, Integer, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
+from typing import List
 from modules.Logger import *
 
 # creation and connection to the db
@@ -26,7 +27,11 @@ class PersonalRole(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     owner: Mapped[int] = mapped_column()
     time: Mapped[int] = mapped_column()
-
+    give_by_owner: Mapped[List] = mapped_column(JSON, default=[])
+    shop: Mapped[bool] = mapped_column(Boolean, default=False)
+    shop_cost: Mapped[int] = mapped_column(default=0)
+    count_user: Mapped[int] = mapped_column(default=0)
+    
 class Transaction(Base):
     __tablename__ = 'transactions'
 

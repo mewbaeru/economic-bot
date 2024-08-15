@@ -38,6 +38,19 @@ class Utils:
 
             return settings_roles, cost_role_create, cost_role_change_name, cost_role_change_color
     
+    # info about additional role
+    def get_cost_additional_role():
+        with open('./assets/settings.json', 'r', encoding='utf-8') as settings:
+            data = json.load(settings)
+
+            settings_roles = data.get('roles')
+            settings_prices = data.get('prices')
+
+            additional_role_id = settings_roles.get("role_of_sending_images")
+            cost_additional_role = settings_prices.get("add_role_of_sending_images")
+
+            return additional_role_id, cost_additional_role
+        
     # server games
     def start_game(self, member_id):
         self.ActiveGames.append(member_id)

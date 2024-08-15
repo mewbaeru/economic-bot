@@ -118,11 +118,89 @@ async def update_time_to_pay(member_id: int):
             await session.execute(update(PersonalRole.time).where(User.id == member_id).values(time=new_time_pay))
             await session.commit()
 
-# delete personal role
-async def delete_role(member_id: int):
+# add role given by owner
+async def add_give_by_owner(role_id: int, member_id: int):
     async with async_session() as session:
-        role = await session.scalar(select(PersonalRole).where(PersonalRole.owner == member_id))
+        result = await session.execute(select(PersonalRole.give_by_owner).where(PersonalRole.id == role_id))
+        current_list = result.scalar_one_or_none() or []
+        current_list.append(member_id)
+        await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(give_by_owner=current_list))
+        await session.commit()
+
+# get user with role give by owner
+async def get_give_by_owner(role_id: int):
+    async with async_session() as session:
+        results = await session.execute(select(PersonalRole.give_by_owner).where(PersonalRole.id == role_id))
+        results = results.scalar_one_or_none() or []
+        return 0 if not results else results
+
+# get len user with role give by owner
+async def get_len_user_give_by_owner(role_id: int):
+    async with async_session() as session:
+        results = await session.execute(select(PersonalRole.give_by_owner).where(PersonalRole.id == role_id))
+        results = results.scalar_one_or_none() or []
+        return 0 if not results else len(results)
+    
+# delete role from list give by owner
+async def delete_give_by_owner(role_id: int, member_id: int):
+    async with async_session() as session:
+        result = await session.execute(select(PersonalRole.give_by_owner).where(PersonalRole.id == role_id))
+        current_list = result.scalar_one_or_none() or []
+        if member_id in current_list:
+            current_list.remove(member_id)
+            await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(give_by_owner=current_list))
+            await session.commit()
+
+# delete personal role
+async def delete_role(role_id: int):
+    async with async_session() as session:
+        role = await session.scalar(select(PersonalRole).where(PersonalRole.id == role_id))
         await session.delete(role)
+        await session.commit()
+
+# add role in shop
+async def add_role_to_shop(role_id: int, shop_cost: int):
+    async with async_session() as session:
+        await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(shop=True, shop_cost=shop_cost))
+        await session.commit()
+
+# add count user which buy role
+async def add_count_user(role_id: int):
+    async with async_session() as session:
+        count_user = await session.scalar(select(PersonalRole.count_user).where(PersonalRole.id == role_id))
+        new_count = count_user + 1
+        await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(count_user=new_count))
+        await session.commit()
+    
+# check if role in shop
+async def is_exists_role_in_shop(role_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRole.shop).where(PersonalRole.id == role_id))
+        return result
+    
+# get cost role in shop
+async def get_cost_role_in_shop(role_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRole.shop_cost).where(PersonalRole.id == role_id))
+        return result
+
+# delete role from shop
+async def delete_role_from_shop(role_id: int):
+    async with async_session() as session:
+        await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(shop=False, shop_cost=0))
+        await session.commit()
+        
+# get roles in shop 
+async def get_shop_roles():
+    async with async_session() as session:
+        roles = await session.execute(select(PersonalRole.id, PersonalRole.time, PersonalRole.owner, PersonalRole.shop_cost, PersonalRole.count_user).where(PersonalRole.shop == True))
+        roles = roles.all()
+        return roles
+
+# change cost role in roles shop
+async def change_cost_role_in_shop(role_id: int, new_shop_cost: int):
+    async with async_session() as session:
+        await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(shop_cost=new_shop_cost))
         await session.commit()
 
 '''Transactions'''
