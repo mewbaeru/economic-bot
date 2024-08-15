@@ -28,12 +28,17 @@ class Utils:
     def get_personal_roles():
         with open('./assets/settings.json', 'r', encoding='utf-8') as settings:
             data = json.load(settings)
-
             settings_roles = data.get('roles')
             settings_prices = data.get('prices')
-
             return settings_roles, settings_prices
-
+    
+    # info about channels
+    def get_channels():
+        with open('./assets/settings.json', 'r', encoding='utf-8') as settings:
+            data = json.load(settings)
+            settings_channels = data.get('channels')
+            return settings_channels
+        
     # server games
     def start_game(self, member_id):
         self.ActiveGames.append(member_id)

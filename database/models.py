@@ -32,6 +32,17 @@ class PersonalRole(Base):
     shop: Mapped[bool] = mapped_column(Boolean, default=False)
     shop_cost: Mapped[int] = mapped_column(default=0)
     count_user: Mapped[int] = mapped_column(default=0)
+
+class Marriage(Base):
+    __tablename__ = 'marriages'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    partner_1: Mapped[int] = mapped_column()
+    partner_2: Mapped[int] = mapped_column()
+    time: Mapped[int] = mapped_column()
+    balance: Mapped[int] = mapped_column()
+    reg_marry: Mapped[str] = mapped_column(String(50))
+    love_room: Mapped[str] = mapped_column(String(100))
     
 class Transaction(Base):
     __tablename__ = 'transactions'

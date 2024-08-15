@@ -1,10 +1,11 @@
 import disnake
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, or_
 
 from modules.Logger import *
 from database.models import async_session
-from database.models import User, PersonalRole, Transaction
+from database.models import User, PersonalRole, Marriage, Transaction
 
+import json
 from datetime import datetime, timedelta
 
 '''Users'''
@@ -87,12 +88,40 @@ async def get_marry(member_id: int):
         result = await session.scalar(select(User.marry).where(User.id == member_id))
         return result
 
-# update marry
-async def update_marry(member_id: int):
+'''Marriages'''
+
+async def add_new_marriage(member_id_1: int, member_id_2: int):
     async with async_session() as session:
-        await session.execute(update(User).where(User.id == member_id).values(marry=True if False else False))
+        time_create = datetime.now()
+        time_pay = time_create + timedelta(days=30)
+        room = {"name": 0, "total_hours": 0, "total_minutes": 0, "joined_at": 0, "id": 0}
+
+        marriage = await session.scalar(select(Marriage).where(Marriage.partner_1 == member_id_1, Marriage.partner_2 == member_id_2))
+        if not marriage:
+            session.add(Marriage(partner_1=member_id_1, partner_2=member_id_2, time=int(time_pay.timestamp()), balance=0, 
+                                 reg_marry=int(time_create.timestamp()), love_room=json.dumps(room), id_room=0))
+            await session.execute(update(User).where(User.id == member_id_1).values(marry=True if False else False))
+            await session.execute(update(User).where(User.id == member_id_2).values(marry=True if False else False))
+            await session.commit()
+
+async def write_data_love_room(member_id: int, type: str, value: int):
+    async with async_session() as session:
+        love_room_data = await get_data_love_room(member_id)
+        love_room_data[type] = value
+        await session.execute(update(Marriage).where(or_(Marriage.partner_1 == member_id, Marriage.partner_2 == member_id)).values(love_room=json.dumps(love_room_data)))
         await session.commit()
 
+async def get_data_love_room(member_id: int):
+    async with async_session() as session:
+        room = await session.scalar(select(Marriage.love_room).where(or_(Marriage.partner_1 == member_id, Marriage.partner_2 == member_id)))
+        love_room_data = json.loads(room)
+        return love_room_data
+
+async def get_info_marriage(member_id: int):
+    async with async_session() as session:
+        results = await session.execute(select(Marriage.partner_1, Marriage.partner_2, Marriage.balance, Marriage.reg_marry, Marriage.love_room).where(or_(Marriage.partner_1 == member_id, Marriage.partner_2 == member_id)))
+        return results.first()
+    
 '''Personal_roles'''
 
 # add new role to db

@@ -2,7 +2,7 @@ from disnake.ui import View, button
 
 from modules.Logger import *
 from modules.Embeds import *
-from database.requests import take_money, update_marry, add_transaction
+from database.requests import take_money, add_transaction, add_new_marriage
 
 import random
 from datetime import datetime
@@ -20,14 +20,13 @@ class MarryView(View):
     async def button_callback_yes(self, button, interaction):
         if interaction.user == self.member:
             await take_money(self.ctx.author.id, self.cost_marry)
-            await update_marry(self.ctx.author.id)
-            await update_marry(self.member.id)
+            await add_new_marriage(self.ctx.author.id, self.member.id)
 
             role = disnake.utils.get(self.ctx.guild.roles, id=self.role_marry)
             await self.ctx.author.add_roles(role)
             await self.member.add_roles(role)
 
-            logger.info(f"/marry - member: {self.ctx.author.id} - member: {self.member.id}")
+            logger.info(f"/marry - partner_1: {self.ctx.author.id} - partner_2: {self.member.id}")
             # add new transaction
             await add_transaction(self.ctx.author.id, f'Заключение брака с {self.member.mention}', -self.cost_marry, datetime.now())
 
