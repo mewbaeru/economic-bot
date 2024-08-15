@@ -108,10 +108,10 @@ def set_manage_role(ctx: commands.Context):
     return personal_roles_embed
 
 def set_edit_role(ctx: commands.Context, role: disnake.role, give_by_user: list, time_pay: int, cost_role_create: int, shop_status: bool, shop_cost: int):
-    members_with_roles = ', '.join(give_by_user) if give_by_user != 0 else "нет пользователей с этой ролью"
+    members_with_role = ', '.join(give_by_user) if give_by_user != 0 else "нет пользователей с этой ролью"
 
     personal_roles_embed = Embed(description=f"**Название роли:** {role.mention};\n**Цвет роли:** `{role.color}`;\n" \
-                                 f"**Выдана пользователям:** {members_with_roles};\n**Время оплаты:** <t:{time_pay}>.",
+                                 f"**Выдана пользователям:** {members_with_role};\n**Время оплаты:** <t:{time_pay}>.",
                                  color=0x2f3136)
     personal_roles_embed.add_field(name=f"**Добавлена в магазин**", value=f"```{'Да' if shop_status else 'Нет'}```", inline=True)
     if shop_status is True:

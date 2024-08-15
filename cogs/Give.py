@@ -31,8 +31,8 @@ class Give(commands.Cog):
             embed = set_give_money(ctx, member, amount)
             await ctx.response.send_message(embed=embed)
         else:
-            embed = set_insufficient_funds(ctx)
-            await ctx.response.send_message(embed=embed)
+            embed = set_invalid_money(ctx, 'Перевод валюты', await get_balance(ctx.author.id))
+            await ctx.response.send_message(embed=embed, ephemeral=True)
 
 def setup(client):
     client.add_cog(Give(client))

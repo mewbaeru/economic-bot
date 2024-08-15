@@ -115,13 +115,20 @@ class RolesEdit(View):
         view = View()
 
         if interaction.user.id == self.ctx.author.id:
+            if await get_balance(self.ctx.author.id) >= self.cost_role_change_name:
+                pass
+            else:
+                embed = set_invalid_money(self.ctx, 'Изменение названия роли', await get_balance(self.ctx.author.id))
+                await interaction.send(embed=embed, ephemeral=True, view=View())
+                return
+            
             self.button_back.callback = self.button_callback_back
             view.add_item(self.button_back)
 
             embed = set_change_name_role(self.ctx, self.role)
             await interaction.response.edit_message(embed=embed, view=view)
             await interaction.followup.send("Напишите новое название личной роли.", ephemeral=True, delete_after=10)
-
+            
             try:
                 def check(message):
                         return interaction.user == message.author
@@ -138,24 +145,20 @@ class RolesEdit(View):
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
-                    if await get_balance(self.ctx.author.id) >= self.cost_role_change_name:
-                        if len(message.content) <= 100:
-                            await take_money(self.ctx.author.id, self.cost_role_change_name)
-                            await self.role.edit(name=f'{message.content}')
+                    if len(message.content) <= 100:
+                        await take_money(self.ctx.author.id, self.cost_role_change_name)
+                        await self.role.edit(name=f'{message.content}')
 
-                            logger.info(f'/change name role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_name: {message.content}')
-                            # add new transaction
-                            await add_transaction(self.ctx.author.id, f'Изменение названия роли {self.role.mention} на {message.content}', 
-                                                  -self.cost_role_change_name, datetime.now())
-                            
+                        logger.info(f'/change name role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_name: {message.content}')
+                        # add new transaction
+                        await add_transaction(self.ctx.author.id, f'Изменение названия роли {self.role.mention} на {message.content}', 
+                                                -self.cost_role_change_name, datetime.now())
+                        
 
-                            embed = set_success_change_name_role(self.ctx, self.role)
-                            await interaction.response.edit_message(embed=embed, view=View())
-                        else:
-                            embed = set_error_symbols_change_name_role(self.ctx, self.role)
-                            await interaction.send(embed=embed, ephemeral=True, view=View())
+                        embed = set_success_change_name_role(self.ctx, self.role)
+                        await interaction.response.edit_message(embed=embed, view=View())
                     else:
-                        embed = set_invalid_money(self.ctx, 'Изменение названия роли', await get_balance(self.ctx.author.id))
+                        embed = set_error_symbols_change_name_role(self.ctx, self.role)
                         await interaction.send(embed=embed, ephemeral=True, view=View())
             
             button_yes_verify.callback = button_callback_yes_verify
@@ -177,6 +180,13 @@ class RolesEdit(View):
         view = View()
 
         if interaction.user.id == self.ctx.author.id:
+            if await get_balance(self.ctx.author.id) >= self.cost_role_change_color:
+                pass
+            else:
+                embed = set_invalid_money(self.ctx, 'Изменение названия роли', await get_balance(self.ctx.author.id))
+                await interaction.send(embed=embed, ephemeral=True, view=View())
+                return
+
             self.button_back.callback = self.button_callback_back
             view.add_item(self.button_back)
 
@@ -192,7 +202,6 @@ class RolesEdit(View):
                     if message:
                         await message.delete()
                         colour = await commands.ColourConverter().convert(self.ctx, message.content)
-                        return
                 except commands.BadColorArgument:
                     embed = set_invalid_change_color_role(self.ctx)
                     await interaction.followup.send(embed=embed, ephemeral=True, view=View())
@@ -213,20 +222,16 @@ class RolesEdit(View):
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
-                    if await get_balance(self.ctx.author.id) >= self.cost_role_change_color:
-                        await take_money(self.ctx.author.id, self.cost_role_change_color)
-                        await self.role.edit(color=colour)
+                    await take_money(self.ctx.author.id, self.cost_role_change_color)
+                    await self.role.edit(color=colour)
 
-                        logger.info(f'/change color role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_color: {colour}')
-                        # add new transaction
-                        await add_transaction(self.ctx.author.id, f'Изменение цвета роли {self.role.mention} на {colour}', 
-                                              -self.cost_role_change_color, datetime.now())
-                        
-                        embed = set_success_change_color_role(self.ctx, self.role)
-                        await interaction.response.edit_message(embed=embed, view=View())
-                    else:
-                        embed = set_invalid_money(self.ctx, 'Изменение названия роли', await get_balance(self.ctx.author.id))
-                        await interaction.send(embed=embed, ephemeral=True, view=View())
+                    logger.info(f'/change color role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_color: {colour}')
+                    # add new transaction
+                    await add_transaction(self.ctx.author.id, f'Изменение цвета роли {self.role.mention} на {colour}', 
+                                            -self.cost_role_change_color, datetime.now())
+                    
+                    embed = set_success_change_color_role(self.ctx, self.role)
+                    await interaction.response.edit_message(embed=embed, view=View())
             
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_no_verify

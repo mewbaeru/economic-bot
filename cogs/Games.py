@@ -19,13 +19,13 @@ class Games(commands.Cog):
             embed = set_active_game(ctx, 'Сыграть в монетку')
             await ctx.response.send_message(embed=embed, ephemeral=True)
         else:
-            if await get_balance(ctx.author.id) >= amount:
+            if await get_balance(ctx.author.id) >= amount * 2:
                 self.utils.start_game(ctx.author.id)
 
                 embed = set_coinflip(ctx, amount)
                 await ctx.response.send_message(embed=embed, view=CoinflipView(ctx, amount, self.utils))
             else:
-                embed = set_not_money_for_game(ctx, 'Сыграть в монетку', await get_balance(ctx.author.id))
+                embed = set_invalid_money(ctx, 'Сыграть в монетку', await get_balance(ctx.author.id))
                 await ctx.response.send_message(embed=embed, ephemeral=True)
     
     # duel
@@ -37,12 +37,16 @@ class Games(commands.Cog):
             embed = set_active_game(ctx, 'Сыграть дуэль')
             await ctx.response.send_message(embed=embed, ephemeral=True)
         else:
-            if await get_balance(ctx.author.id) >= amount:
+            if await get_balance(ctx.author.id) >= amount * 2:
                 # duel with opponent
                 if opponent is not None:
                     # exception
                     if opponent.id == ctx.author.id or opponent.bot:
-                        embed = set_error_duel(ctx, opponent)
+                        embed = set_invalid_user(ctx, 'Сыграть дуэль', 'себя')
+                        await ctx.response.send_message(embed=embed, ephemeral=True)
+                        return
+                    elif opponent.bot:
+                        embed = set_invalid_user(ctx, 'Сыграть дуэль', 'бота')
                         await ctx.response.send_message(embed=embed, ephemeral=True)
                         return
 
@@ -55,7 +59,7 @@ class Games(commands.Cog):
                     embed = set_duel(ctx, opponent, amount)
                     await ctx.response.send_message(embed=embed, view=DuelView(ctx, opponent, amount, self.utils))
             else:
-                embed = set_not_money_for_game(ctx, 'Сыграть дуэль', await get_balance(ctx.author.id))
+                embed = set_invalid_money(ctx, 'Сыграть дуэль', await get_balance(ctx.author.id))
                 await ctx.response.send_message(embed=embed, ephemeral=True)
 
 def setup(client):

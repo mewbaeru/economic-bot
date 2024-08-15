@@ -6,6 +6,7 @@ from modules.Embeds import *
 from database.requests import take_money, give_money, get_balance, add_transaction
 
 import random
+from datetime import datetime
 
 # coinflip
 class CoinflipView(View):
@@ -100,7 +101,7 @@ class DuelView(View):
         return
     
     async def handle_game_duel(self, interaction):
-        if await get_balance(self.opponent.id) >= self.amount:
+        if await get_balance(self.opponent.id) >= self.amount * 2:
             embed = set_process_duel(self.ctx, self.opponent, self.amount)
             await interaction.response.edit_message(embed=embed, view=View())
 
@@ -111,7 +112,7 @@ class DuelView(View):
             await self.process_result(interaction, winner, loser)
         else:
             self.utils.stop_game(self.ctx.author.id)
-            embed = set_not_money_for_game(self.ctx, 'Сыграть дуэль')
+            embed = set_invalid_money_member(self.ctx, 'Сыграть дуэль', await get_balance(self.opponent.id))
             await interaction.send(embed=embed, ephemeral=True, user=self.opponent)
     
     async def process_result(self, interaction, winner, loser):

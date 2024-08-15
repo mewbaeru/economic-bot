@@ -19,7 +19,7 @@ class Transaction(commands.Cog):
         if user is None:
             user = ctx.author
         elif user.bot:
-            embed = set_error_balance(ctx)
+            embed = set_invalid_user(ctx, 'Текущий баланс', 'бота')
             await ctx.response.send_message(embed=embed, ephemeral=True)
             return
 
@@ -33,7 +33,7 @@ class Transaction(commands.Cog):
         if user is None:
             user = ctx.author
         elif user.bot:
-            embed = set_error_transaction(ctx)
+            embed = set_invalid_user(ctx, 'Транзакции', 'бота')
             await ctx.response.send_message(embed=embed, ephemeral=True)
             return
         

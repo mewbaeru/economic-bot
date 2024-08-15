@@ -119,11 +119,11 @@ async def update_time_to_pay(member_id: int):
             await session.commit()
 
 # add role given by owner
-async def add_give_by_owner(role_id: int, member_id: int):
+async def add_give_by_owner(role_id: int, member_id: str):
     async with async_session() as session:
         result = await session.execute(select(PersonalRole.give_by_owner).where(PersonalRole.id == role_id))
         current_list = result.scalar_one_or_none() or []
-        current_list.append(member_id)
+        current_list.append(f'<@{member_id}>')
         await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(give_by_owner=current_list))
         await session.commit()
 
@@ -142,12 +142,12 @@ async def get_len_user_give_by_owner(role_id: int):
         return 0 if not results else len(results)
     
 # delete role from list give by owner
-async def delete_give_by_owner(role_id: int, member_id: int):
+async def delete_give_by_owner(role_id: int, member_id: str):
     async with async_session() as session:
         result = await session.execute(select(PersonalRole.give_by_owner).where(PersonalRole.id == role_id))
         current_list = result.scalar_one_or_none() or []
-        if member_id in current_list:
-            current_list.remove(member_id)
+        if f'<@{member_id}>' in current_list:
+            current_list.remove(f'<@{member_id}>')
             await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(give_by_owner=current_list))
             await session.commit()
 

@@ -25,7 +25,7 @@ class Timely(commands.Cog):
 
         if len(str(need)) < 2 or time >= need:
             # add new transaction
-            await add_transaction(self.ctx.author.id, f'Ежедневное вознаграждение', +money, datetime.now())
+            await add_transaction(ctx.author.id, f'Ежедневное вознаграждение', +money, datetime.now())
 
             await give_money(ctx.author.id, money)
             await update_dayly_award(ctx.author.id, int(datetime.timestamp(time + timedelta(hours=24))))

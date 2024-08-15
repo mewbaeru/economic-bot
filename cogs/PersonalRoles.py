@@ -2,7 +2,7 @@ from disnake import Option
 from disnake.ext import commands, tasks
 from disnake.ui import Select
 
-from database.requests import get_balance, is_exists_role, get_all_roles, get_time_to_pay, delete_role
+from database.requests import get_balance, is_exists_role, get_all_roles, get_time_to_pay, delete_role, get_give_by_owner, is_exists_role_in_shop, get_cost_role_in_shop
 from modules import *
 
 guild_id = Utils.get_guild_id()
@@ -65,12 +65,13 @@ class PersonalRoles(commands.Cog):
             
             async def callback(interaction):
                 role = disnake.utils.get(ctx.guild.roles, id=int(select_menu.values[0]))
-                time_create = datetime.fromtimestamp(await get_time_to_pay(ctx.author.id))
-                time_pay = time_create + timedelta()
-
-                embed = set_edit_role(ctx, role, time_pay, cost_role_create)
-                await interaction.response.edit_message(embed=embed, view=RolesEdit(ctx, role, time_pay, cost_role_create, cost_role_change_name,
-                                                                                    cost_role_change_color))
+                time_pay = await get_time_to_pay(ctx.author.id)
+                shop_status = await is_exists_role_in_shop(role.id)
+                shop_cost = await get_cost_role_in_shop(role.id)
+                
+                embed = set_edit_role(ctx, role, await get_give_by_owner(role.id), time_pay, cost_role_create, shop_status, shop_cost)
+                await interaction.response.edit_message(embed=embed, view=RolesEdit(ctx, role, time_pay, shop_cost, shop_status, cost_role_create, 
+                                                                                    cost_role_change_name, cost_role_change_color))
 
             select_menu.callback = callback
             view = View()

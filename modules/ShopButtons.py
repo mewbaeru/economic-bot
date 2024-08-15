@@ -3,7 +3,9 @@ from disnake.ui import View, button, Button, StringSelect
 
 from modules.Logger import *
 from modules.Embeds import *
-from database.requests import get_balance, get_cost_role_in_shop, take_money, add_count_user, give_money
+from database.requests import get_balance, get_cost_role_in_shop, take_money, add_count_user, give_money, add_transaction
+
+from datetime import datetime
 
 # shop
 class ShopView(View):
@@ -94,6 +96,7 @@ class ShopView(View):
             if await get_balance(self.ctx.author.id) >= await get_cost_role_in_shop(role_id):
                 pass
             else:
+                await give_money(self.ctx.author.id, 100000)
                 embed = set_invalid_money(self.ctx, 'Приобретение роли', await get_balance(self.ctx.author.id))
                 await interaction.send(embed=embed, ephemeral=True, view=View())
                 return
@@ -110,6 +113,11 @@ class ShopView(View):
                     await give_money(self.role_owners[role_id], self.role_prices[role_id])
                     await interaction.user.add_roles(role)
 
+                    logger.info(f'/shop - role_id: {role_id} - buyer: {self.ctx.author.id}')
+                    # add new transaction
+                    await add_transaction(self.ctx.author.id, f'Приобретение роли {role.mention}', 
+                                            -self.role_prices[role_id], datetime.now())
+                    
                     embed = set_success_buy_role(self.ctx, role, await get_cost_role_in_shop(role_id))
                     await interaction.response.edit_message(embed=embed, view=View())
 
@@ -154,6 +162,11 @@ class ShopView(View):
                     additional_role = disnake.utils.get(self.ctx.guild.roles, id=self.additional_role_id)
                     await interaction.user.add_roles(additional_role)
 
+                    logger.info(f'/shop - role_id: {additional_role.id} - buyer: {self.ctx.author.id}')
+                    # add new transaction
+                    await add_transaction(self.ctx.author.id, f'Приобретение роли {additional_role.mention}', 
+                                            -self.cost_additional_role, datetime.now())
+                    
                     embed = set_success_buy_additional_role(self.ctx, self.additional_role_id, self.cost_additional_role)
                     await interaction.response.edit_message(embed=embed, view=View())
             
