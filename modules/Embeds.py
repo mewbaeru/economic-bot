@@ -517,3 +517,40 @@ def set_success_buy_additional_role(ctx: commands.Context, role: int,  role_cost
     shop_embed.set_author(name=f"{ctx.guild.name} | Приобретение роли", icon_url=ctx.guild.icon.url)
     shop_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return shop_embed
+
+# marry
+def set_marry(ctx: commands.Context, member: disnake.Member):
+    marry_embed = Embed(description=f"{ctx.author.mention} отправил предложение о заключении брака {member.mention}.",
+                        color=0x2f3136)
+    marry_embed.set_author(name=f"{ctx.guild.name} | Заключить брак", icon_url=ctx.guild.icon.url)
+    marry_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return marry_embed
+
+def set_active_marry(ctx: commands.Context):
+    marry_embed = Embed(title='Заключить брак',
+                        description=f"{ctx.author.mention}, Вы уже находитесь в браке.",
+                        color=0x2f3136)
+    marry_embed.set_author(name=f"{ctx.guild.name} | Заключить брак", icon_url=ctx.guild.icon.url)
+    marry_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return marry_embed
+
+def set_active_marry_member(ctx: commands.Context, member: disnake.Member):
+    marry_embed = Embed(title='Заключить брак',
+                        description=f"{ctx.author.mention}, к сожалению, {member.mention} уже находится в браке.",
+                        color=0x2f3136)
+    marry_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return marry_embed
+
+def set_refusal_wedding(ctx: commands.Context, member: disnake.Member):
+    marry_embed = Embed(description=f"{ctx.author.mention}, к сожалению, {member.mention} отказался заключать брак с Вами.",
+                        color=0x2f3136)
+    marry_embed.set_author(name=f"{ctx.guild.name} | Заключить брак", icon_url=ctx.guild.icon.url)
+    marry_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return marry_embed
+
+def set_success_marry(ctx: commands.Context, member: disnake):
+    marry_embed = Embed(description=f"{ctx.author.mention} и {member.mention} теперь в браке!",
+                       color=0x2f3136)
+    marry_embed.set_author(name=f"{ctx.guild.name} | Заключить брак", icon_url=ctx.guild.icon.url)
+    marry_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return marry_embed

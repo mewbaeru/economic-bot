@@ -42,7 +42,7 @@ class Transaction(commands.Cog):
         page = 1
 
         if await is_exists_transaction(user.id):
-            embed = set_transaction(user, transactions, page, total_pages)
+            embed = set_transaction(ctx, user, transactions, page, total_pages)
             await ctx.response.send_message(embed=embed, view=TransactionView(ctx, user, page, transactions, total_pages))
         else:
             embed = set_not_transaction(ctx)

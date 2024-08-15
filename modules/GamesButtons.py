@@ -112,14 +112,19 @@ class DuelView(View):
             await self.process_result(interaction, winner, loser)
         else:
             self.utils.stop_game(self.ctx.author.id)
-            embed = set_invalid_money_member(self.ctx, 'Сыграть дуэль', await get_balance(self.opponent.id))
+            embed = set_invalid_money_member(self.opponent, 'Сыграть дуэль', await get_balance(self.opponent.id))
             await interaction.send(embed=embed, ephemeral=True, user=self.opponent)
     
     async def process_result(self, interaction, winner, loser):
+        await give_money(winner.id, self.amount * 2)
+        await take_money(loser.id, self.amount)
+
         embed = set_win_duel(self.ctx, winner, loser, self.amount)
         await interaction.edit_original_response(embed=embed, view=View())
+
         logger.info(f'/duel - winner {winner.id} - loser {loser.id} - amount {self.amount}')
         # add new transaction
         await add_transaction(winner.id, f'Дуэль против пользователя {loser}', +self.amount, datetime.now())
         await add_transaction(loser.id, f'Дуэль против пользователя {winner}', -self.amount, datetime.now())
+        
         self.utils.stop_game(self.ctx.author.id)

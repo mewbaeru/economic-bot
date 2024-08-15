@@ -10,13 +10,13 @@ from datetime import datetime
 
 # role creation confirmation
 class RoleConfirmationView(View):
-    def __init__(self, ctx, name, colour, settings_roles, cost_role_create, timeout=60):
+    def __init__(self, ctx, name, colour, settings_roles, settings_prices, timeout=60):
         super().__init__(timeout=timeout)
         self.ctx = ctx
         self.name = name
         self.colour = colour
         self.settings_roles = settings_roles
-        self.cost_role_create = cost_role_create
+        self.settings_prices = settings_prices
 
     async def on_timeout(self):
         embed = set_create_role_timeout(self.ctx)
@@ -32,11 +32,11 @@ class RoleConfirmationView(View):
             await self.ctx.author.add_roles(role)
 
             await add_role(self.ctx.author.id, role.id)
-            await take_money(self.ctx.author.id, self.cost_role_create)
+            await take_money(self.ctx.author.id, self.settings_prices.get('role_create'))
 
             logger.info(f'/create role - owner: {self.ctx.author.id} - role_id: {role.id}')
             # add new transaction
-            await add_transaction(self.ctx.author.id, f'Создание роли {role.mention}', -self.cost_role_create, datetime.now())
+            await add_transaction(self.ctx.author.id, f'Создание роли {role.mention}', -self.settings_prices.get('role_create'), datetime.now())
 
             embed = set_create_role(self.ctx, role)
             self.stop()
@@ -50,16 +50,15 @@ class RoleConfirmationView(View):
 
 # role manage
 class RolesEdit(View): 
-    def __init__(self, ctx, role, time_pay, shop_cost, shop_status, cost_role_create, cost_role_change_name, cost_role_change_color, timeout=120): 
+    def __init__(self, ctx, role, time_pay, shop_cost, shop_status, settings_roles, settings_prices, timeout=120): 
         super().__init__(timeout=timeout) 
         self.ctx = ctx 
         self.role = role
         self.time_pay = time_pay 
         self.shop_cost = shop_cost
         self.shop_status = shop_status
-        self.cost_role_create = cost_role_create 
-        self.cost_role_change_name = cost_role_change_name
-        self.cost_role_change_color = cost_role_change_color 
+        self.settings_roles = settings_roles 
+        self.settings_prices = settings_prices
 
         self.button_back = Button(label='Отмена', custom_id='btn_back', row=1)
         self.select_menu = StringSelect(
@@ -83,13 +82,15 @@ class RolesEdit(View):
     
     async def button_callback_back(self, interaction):
         if interaction.user.id == self.ctx.author.id:
-            embed = set_edit_role(self.ctx, self.role, await get_give_by_owner(self.role.id), self.time_pay, self.cost_role_create, self.shop_status, self.shop_cost)
+            embed = set_edit_role(self.ctx, self.role, await get_give_by_owner(self.role.id), self.time_pay, self.settings_prices.get('role_create'), 
+                                  self.shop_status, self.shop_cost)
             await interaction.response.edit_message(embed=embed, view=self)
             return
 
     async def button_callback_no_verify(self, interaction):
         if interaction.user.id == self.ctx.author.id:
-            embed = set_edit_role(self.ctx, self.role, await get_give_by_owner(self.role.id), self.time_pay, self.cost_role_create, self.shop_status, self.shop_cost)
+            embed = set_edit_role(self.ctx, self.role, await get_give_by_owner(self.role.id), self.time_pay, self.settings_prices.get('role_create'), 
+                                  self.shop_status, self.shop_cost)
             await interaction.response.edit_message(embed=embed, view=self)
 
     async def select_menu_callback(self, interaction):
@@ -115,7 +116,7 @@ class RolesEdit(View):
         view = View()
 
         if interaction.user.id == self.ctx.author.id:
-            if await get_balance(self.ctx.author.id) >= self.cost_role_change_name:
+            if await get_balance(self.ctx.author.id) >= self.settings_prices.get('role_change_name'):
                 pass
             else:
                 embed = set_invalid_money(self.ctx, 'Изменение названия роли', await get_balance(self.ctx.author.id))
@@ -146,14 +147,13 @@ class RolesEdit(View):
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
                     if len(message.content) <= 100:
-                        await take_money(self.ctx.author.id, self.cost_role_change_name)
+                        await take_money(self.ctx.author.id, self.settings_prices.get('role_change_name'))
                         await self.role.edit(name=f'{message.content}')
 
                         logger.info(f'/change name role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_name: {message.content}')
                         # add new transaction
                         await add_transaction(self.ctx.author.id, f'Изменение названия роли {self.role.mention} на {message.content}', 
-                                                -self.cost_role_change_name, datetime.now())
-                        
+                                                -self.settings_prices.get('role_change_name'), datetime.now())
 
                         embed = set_success_change_name_role(self.ctx, self.role)
                         await interaction.response.edit_message(embed=embed, view=View())
@@ -173,14 +173,14 @@ class RolesEdit(View):
             except disnake.NotFound:
                 logger.error('/role manage name - message not found')
 
-            embed = set_confirmation_change_name_role(self.ctx, message.content, self.cost_role_change_name)
+            embed = set_confirmation_change_name_role(self.ctx, message.content, self.settings_prices.get('role_change_name'))
             await interaction.edit_original_response(embed=embed, view=view_verify)
 
     async def change_color(self, interaction):
         view = View()
 
         if interaction.user.id == self.ctx.author.id:
-            if await get_balance(self.ctx.author.id) >= self.cost_role_change_color:
+            if await get_balance(self.ctx.author.id) >= self.settings_prices.get('role_change_color'):
                 pass
             else:
                 embed = set_invalid_money(self.ctx, 'Изменение названия роли', await get_balance(self.ctx.author.id))
@@ -222,13 +222,13 @@ class RolesEdit(View):
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
-                    await take_money(self.ctx.author.id, self.cost_role_change_color)
+                    await take_money(self.ctx.author.id, self.settings_prices.get('role_change_color'))
                     await self.role.edit(color=colour)
 
                     logger.info(f'/change color role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_color: {colour}')
                     # add new transaction
                     await add_transaction(self.ctx.author.id, f'Изменение цвета роли {self.role.mention} на {colour}', 
-                                            -self.cost_role_change_color, datetime.now())
+                                            -self.settings_prices.get('role_change_color'), datetime.now())
                     
                     embed = set_success_change_color_role(self.ctx, self.role)
                     await interaction.response.edit_message(embed=embed, view=View())
@@ -239,7 +239,7 @@ class RolesEdit(View):
             view_verify.add_item(button_yes_verify)
             view_verify.add_item(button_no_verify)
 
-            embed = set_confirmation_change_color_role(self.ctx, message.content, self.cost_role_change_color)
+            embed = set_confirmation_change_color_role(self.ctx, message.content, self.settings_prices.get('role_change_color'))
             await interaction.edit_original_response(embed=embed, view=view_verify)
 
     async def give_role(self, interaction):
@@ -281,13 +281,12 @@ class RolesEdit(View):
                             else:
                                 await view_verify(selected_user, interaction)
 
-        view.add_item(SelectUsers(self.ctx, self.role, self.button_callback_no_verify))
-
         users_with_role = await get_len_user_give_by_owner(self.role.id)
         if users_with_role >= 3:
             embed = set_not_give_user_role(self.ctx)
-            await interaction.response.edit_message(embed=embed, view=View())
+            await interaction.response.edit_message(embed=embed, view=view)
         else:
+            view.add_item(SelectUsers(self.ctx, self.role, self.button_callback_no_verify))
             embed = set_give_user_role(self.ctx, self.role, users_with_role)
             await interaction.response.edit_message(embed=embed, view=view)
 

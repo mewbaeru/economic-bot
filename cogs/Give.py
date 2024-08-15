@@ -17,13 +17,19 @@ class Give(commands.Cog):
         
         balance = await get_balance(ctx.author.id)
         
-        if member.id == ctx.author.id or member.bot:
+        if member.id == ctx.author.id:
+            embed = set_invalid_user(ctx, 'Перевод валюты', 'себя')
+            await ctx.response.send_message(embed=embed, ephemeral=True)
+            return
+        elif member.bot:
+            embed = set_invalid_user(ctx, 'Перевод валюты', 'бота')
+            await ctx.response.send_message(embed=embed, ephemeral=True)
             return
         
-        if balance > amount and amount > 0:
+        if balance >= amount and amount > 0:
             await transfer_money(ctx.author.id, member.id, amount)
 
-            logger.info(f"/give - sender: {ctx.author.name} - recipient: {member.name} - amount: {amount}")
+            logger.info(f"/give - sender: {ctx.author.id} - recipient: {member.id} - amount: {amount}")
             # add new transaction
             await add_transaction(ctx.author.id, f'Перевод валюты пользователю {member.mention}', -amount, datetime.now())
             await add_transaction(member.id, f'Перевод валюты от пользователя {ctx.author.mention}', +amount, datetime.now())

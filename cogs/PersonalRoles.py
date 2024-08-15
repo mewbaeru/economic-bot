@@ -9,7 +9,7 @@ guild_id = Utils.get_guild_id()
 
 # get role data from settings
 try: 
-    settings_roles, cost_role_create, cost_role_change_name, cost_role_change_color = Utils.get_personal_roles()
+    settings_roles, settings_prices = Utils.get_personal_roles()
 except Exception:
     logger.error('failed to load settings')
 
@@ -30,7 +30,7 @@ class PersonalRoles(commands.Cog):
                           ]   
     )
     async def create(self, ctx, name: str, color: str):
-        if await get_balance(ctx.author.id) >= cost_role_create:
+        if await get_balance(ctx.author.id) >= settings_prices.get('role_create'):
             try:
                 colour = await commands.ColourConverter().convert(ctx, color)
             except Exception:
@@ -45,8 +45,8 @@ class PersonalRoles(commands.Cog):
         await ctx.response.defer()
         
         # role creation confirmation
-        embed = set_role_creation_confirmation(ctx, name, colour, cost_role_create)
-        await ctx.send(embed=embed, view=RoleConfirmationView(ctx, name, colour, settings_roles, cost_role_create))
+        embed = set_role_creation_confirmation(ctx, name, colour, settings_prices.get('role_create'))
+        await ctx.send(embed=embed, view=RoleConfirmationView(ctx, name, colour, settings_roles, settings_prices))
     
     # role manage
     @role.sub_command(name='manage', description='Управление личной ролью')
@@ -69,9 +69,8 @@ class PersonalRoles(commands.Cog):
                 shop_status = await is_exists_role_in_shop(role.id)
                 shop_cost = await get_cost_role_in_shop(role.id)
                 
-                embed = set_edit_role(ctx, role, await get_give_by_owner(role.id), time_pay, cost_role_create, shop_status, shop_cost)
-                await interaction.response.edit_message(embed=embed, view=RolesEdit(ctx, role, time_pay, shop_cost, shop_status, cost_role_create, 
-                                                                                    cost_role_change_name, cost_role_change_color))
+                embed = set_edit_role(ctx, role, await get_give_by_owner(role.id), time_pay, settings_prices.get('role_create'), shop_status, shop_cost)
+                await interaction.response.edit_message(embed=embed, view=RolesEdit(ctx, role, time_pay, shop_cost, shop_status, settings_roles, settings_prices))
 
             select_menu.callback = callback
             view = View()
@@ -85,8 +84,8 @@ class PersonalRoles(commands.Cog):
     async def monthly_payment(self, ctx):
         if await is_exists_role(ctx.author.id):
             if datetime.now() >= await get_time_to_pay(ctx.author.id):
-                if await get_balance(ctx.author.id) >= cost_role_create:
-                    await take_money(ctx.author.id, cost_role_create)
+                if await get_balance(ctx.author.id) >= settings_prices.get('role_create'):
+                    await take_money(ctx.author.id, settings_prices.get('role_create'))
                 else:
                     await delete_role(ctx.author.id)
 

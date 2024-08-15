@@ -41,7 +41,7 @@ class Games(commands.Cog):
                 # duel with opponent
                 if opponent is not None:
                     # exception
-                    if opponent.id == ctx.author.id or opponent.bot:
+                    if opponent.id == ctx.author.id:
                         embed = set_invalid_user(ctx, 'Сыграть дуэль', 'себя')
                         await ctx.response.send_message(embed=embed, ephemeral=True)
                         return

@@ -9,14 +9,14 @@ from datetime import datetime
 
 # shop
 class ShopView(View):
-    def __init__(self, ctx, page, roles, total_pages, additional_role_id, cost_additional_role, timeout=120):
+    def __init__(self, ctx, page, roles, total_pages, settings_roles, settings_prices , timeout=120):
         super().__init__(timeout=timeout)
         self.ctx = ctx
         self.page = page
         self.roles = roles
         self.total_pages = total_pages
-        self.additional_role_id = additional_role_id
-        self.cost_additional_role = cost_additional_role
+        self.settings_roles = settings_roles
+        self.settings_prices = settings_prices
 
         # add buttons for buy roles
         self.page_roles = roles[(page-1)*5:page*5]
@@ -67,7 +67,8 @@ class ShopView(View):
     async def update_embed(self, interaction):
         self.page = max(min(self.page, self.total_pages), 1)
         embed = set_shop(self.ctx, self.roles, self.page, self.total_pages)
-        await interaction.response.edit_message(embed=embed, view=ShopView(self.ctx, self.page, self.roles, self.total_pages, self.additional_role_id, self.cost_additional_role))
+        await interaction.response.edit_message(embed=embed, view=ShopView(self.ctx, self.page, self.roles, self.total_pages, self.settings_roles.get('role_of_sending_images'), 
+                                                                           self.settings_prices.get('add_role_of_sending_images')))
     
     # set embed with another shop
     async def another_shop(self, interaction):
@@ -137,14 +138,14 @@ class ShopView(View):
     
     async def button_callback_buy_additional_role(self, interaction):
         if interaction.user.id == self.ctx.author.id:
-            additional_role = disnake.utils.get(self.ctx.guild.roles, id=self.additional_role_id)
+            additional_role = disnake.utils.get(self.ctx.guild.roles, id=self.settings_roles.get('role_of_sending_images'))
 
             # exception
             if additional_role in self.ctx.author.roles:
                 embed = set_already_have_role(self.ctx)
                 await interaction.send(embed=embed, ephemeral=True, view=View())
                 return
-            if await get_balance(self.ctx.author.id) >= self.cost_additional_role:
+            if await get_balance(self.ctx.author.id) >= self.settings_prices.get('add_role_of_sending_images'):
                 pass
             else:
                 embed = set_invalid_money(self.ctx, 'Приобретение роли', await get_balance(self.ctx.author.id))
@@ -158,21 +159,22 @@ class ShopView(View):
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
-                    await take_money(self.ctx.author.id, self.cost_additional_role)
-                    additional_role = disnake.utils.get(self.ctx.guild.roles, id=self.additional_role_id)
+                    await take_money(self.ctx.author.id, self.settings_prices.get('add_role_of_sending_images'))
+                    additional_role = disnake.utils.get(self.ctx.guild.roles, id=self.settings_roles.get('role_of_sending_images'))
                     await interaction.user.add_roles(additional_role)
 
                     logger.info(f'/shop - role_id: {additional_role.id} - buyer: {self.ctx.author.id}')
                     # add new transaction
                     await add_transaction(self.ctx.author.id, f'Приобретение роли {additional_role.mention}', 
-                                            -self.cost_additional_role, datetime.now())
+                                            -self.settings_prices.get('add_role_of_sending_images'), datetime.now())
                     
-                    embed = set_success_buy_additional_role(self.ctx, self.additional_role_id, self.cost_additional_role)
+                    embed = set_success_buy_additional_role(self.ctx, self.settings_roles.get('role_of_sending_images'), 
+                                                            self.settings_prices.get('add_role_of_sending_images'))
                     await interaction.response.edit_message(embed=embed, view=View())
             
             async def button_callback_no_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
-                    embed = set_another_shop(self.ctx, self.cost_additional_role, self.page, self.total_pages)
+                    embed = set_another_shop(self.ctx, self.settings_prices.get('add_role_of_sending_images'), self.page, self.total_pages)
                     await interaction.response.edit_message(embed=embed, view=self)
             
             button_yes_verify.callback = button_callback_yes_verify
@@ -181,7 +183,8 @@ class ShopView(View):
             view_verify.add_item(button_yes_verify)
             view_verify.add_item(button_no_verify)
 
-            embed = set_confirmation_buy_additional_role(self.ctx, self.additional_role_id, self.cost_additional_role)
+            embed = set_confirmation_buy_additional_role(self.ctx, self.settings_roles.get('role_of_sending_images'), 
+                                                         self.settings_prices.get('add_role_of_sending_images'))
             await interaction.response.edit_message(embed=embed, view=view_verify)
             
     async def sorting_select_menu_callback(self, interaction):
