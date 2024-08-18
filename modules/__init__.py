@@ -1,4 +1,5 @@
 from .PersonalRolesButtons import *
+from .PersonalRoomButtons import *
 from .TransactionButtons import *
 from .GamesButtons import *
 from .MarryButtons import *

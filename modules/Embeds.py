@@ -2,7 +2,7 @@ import disnake
 from disnake.ext import commands
 from disnake import Embed
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 # error
 def set_invalid_money(ctx: commands.Context, action: str, balance: int):
@@ -37,6 +37,13 @@ def set_invalid_time(ctx: commands.Context, action: str):
     error_embed.set_author(name=f"{ctx.guild.name} | {action}", icon_url=ctx.guild.icon.url)
     error_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return error_embed
+
+def set_error_symbols_change_name(ctx: commands.Context, action: str):
+    personal_roles_embed = Embed(title=f"{action}",
+                                 description=f"{ctx.author.mention}, количество символов **не должно превышать 100** для изменения названия.",
+                                 color=0x2f3136)
+    personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_roles_embed
 
 # timely embeds
 def set_timely_embed(ctx: commands.Context, money: int):
@@ -74,7 +81,7 @@ def set_give_money(ctx: commands.Context, member: disnake.Member, amount: int):
 # create role
 def set_invalid_color(ctx: commands.Context):
     personal_roles_embed = Embed(title="Создание роли",
-                                 description=f"{ctx.author.id}, Введите **цвет** в корректном **HEX** формате.\nНапример: **#FFFFFF**",
+                                 description=f"{ctx.author.mention}, Введите **цвет** в корректном **HEX** формате.\nНапример: **#FFFFFF**",
                                  color=0x2f3136)
     return personal_roles_embed
 
@@ -147,13 +154,6 @@ def set_success_change_name_role(ctx: commands.Context, role: disnake.role):
     personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** изменили название роли {role.mention}.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Изменение названия роли", icon_url=ctx.guild.icon.url)
-    personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    return personal_roles_embed
-
-def set_error_symbols_change_name_role(ctx: commands.Context, role: disnake.role):
-    personal_roles_embed = Embed(title=f"Изменение названия роли",
-                                 description=f"{ctx.author.mention}, количество символов **не должно превышать 100** для изменения названия роли {role.mention}.",
-                                 color=0x2f3136)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_roles_embed
 
@@ -554,3 +554,311 @@ def set_success_marry(ctx: commands.Context, member: disnake):
     marry_embed.set_author(name=f"{ctx.guild.name} | Заключить брак", icon_url=ctx.guild.icon.url)
     marry_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return marry_embed
+
+# personal room embeds
+# room create
+def set_error_money(ctx: commands.Context, cost_create_room: int, balance: int):
+    personal_rooms_embed = Embed(title='Создание личной комнаты',
+                                 description=f"{ctx.author.mention} у вас **недостаточно денег** для приобретения личной комнаты с таком лимитом.\nЕе стоимость составляет {cost_create_room} <:coin_mewbae:1272661482991124481>.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_footer(text=f"Ваш баланс на данный момент составляет {balance} монет")
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_user_already_have_room(ctx: commands.Context):
+    personal_rooms_embed = Embed(title='Создание личной комнаты',
+                                 description=f"{ctx.author.mention} у вас **уже есть** личная комната.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_room_creation_confirmation(ctx: commands.Context, room_name: str, cost_create_room: int):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention} Вы уверены, что хотите создать комнату с названием `{room_name}` за {cost_create_room} <:coin_mewbae:1272661482991124481>?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Создание личной комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_create_room(ctx: commands.Context, role: disnake.role):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** создали личную комнату с ролью {role.mention}!",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Создание личной комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+# room manage
+def set_edit_room(ctx: commands.Context, room_name: str, role: disnake.role, co_owner: int, time_pay: int, members: list, user_limit: int, cost_room_create: int):
+    time = datetime.fromtimestamp(time_pay)
+    formatted_time = time.strftime("%d.%m.%Y %H:%M")
+    members_with_role = "\n".join([f"**{index + 1})** {member.mention}" for index, member in enumerate(members)])
+
+    personal_rooms_embed = Embed(description=f"**Роль:** {role.mention}\n" \
+                                 f"**Совладелец:** {f"<@{co_owner}>" if co_owner != 0 else 'не назначен'}\n\n" \
+                                 f"**Участники:**\n{members_with_role}\n\n" \
+                                 f"> Комната:\n```{room_name}```\n" \
+                                 f"> Установленный лимит пользователей:\n```{user_limit}```\n",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Управление личной комнатой", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_footer(text=f"Не забудьте положить на счет стоимость комнаты ({cost_room_create}) до {formatted_time}")
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_not_room(ctx: commands.Context):
+    personal_roles_embed = Embed(title="Управление личной комнатой",
+                                 description=f"{ctx.author.mention}, у Вас нет персональной комнаты.",
+                                 color=0x2f3136)
+    personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_roles_embed
+
+def set_change_name_room(ctx: commands.Context, room_name: str):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, введите новое название для личной комнаты `{room_name}`.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Изменение названия комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_confirmation_change_name(ctx: commands.Context, action: str, name: str):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить название** {action} на `{name}`?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Изменение названия {action}", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_change_name_room(ctx: commands.Context, room_name: str):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** изменили название личной комнаты на `{room_name}`.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Изменение названия комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_confirmation_change_color(ctx: commands.Context, color: str):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить цвет** роли на `{color}`?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Изменение цвета роли", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_give_user_room(ctx: commands.Context, user_limit: int):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, выберите **пользователя**, которому Вы хотите **выдать доступ** в комнату.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Выдача доступа в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_footer(text=f"Вы можете выдать роль только {user_limit} пользователям")
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+
+    if user_limit == 1:
+        personal_rooms_embed.set_footer(text=f"Вы можете выдать роль только {user_limit} пользователю")
+    return personal_rooms_embed
+
+def set_confirmation_give_room(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **выдать доступ** в комнату пользователю {member.mention}?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Выдача доступа в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_give_room(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** выдали доступ в комнату пользователю {member.mention}.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Выдача доступа в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_not_give_user_room(ctx: commands.Context, user_limit: int):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, к сожалению, Вы можете **дать доступ** только {user_limit} пользователям.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Выдача доступа в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_not_user_with_room_role(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы еще **не выдавали** никому доступ в свою комнату.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Забрать доступ в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_take_user_room(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, выберите **пользователя**, у которого Вы хотите **забрать доступ** в комнату.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Забрать доступ в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_confirmation_take_room(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **забрать доступ** в комнату у пользователя {member.mention}?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Забрать доступ в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_take_room(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** забрали доступ в комнату у пользователя {member.mention}.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Забрать доступ в комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_invalid_room_owner(ctx: commands.Context):
+    personal_rooms_embed = Embed(title=f"Забрать доступ в комнату",
+                                 description=f"{ctx.author.mention}, Вы не можете забрать доступ в комнату у ее создателя.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_confirmation_delete_room(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить** свою комнату?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Удаление комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_footer(text='Возврат средств, потраченных на комнату, не осуществляется')
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_delete_room(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** удалили свою комнату.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Удаление комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_choose_co_owner(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, выберите **пользователя**, которого Вы хотите **назначить совладельцем** комнаты.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Назначить совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_already_co_owner(ctx: commands.Context, co_owner: int):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, у Вас уже есть совладелец <@{co_owner}>\n" \
+                                 f"Вы хотите назначить нового совладельца?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Назначить совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_confirmation_appoint_co_owner(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **назначить совладельцем** комнаты пользователя {member.mention}?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Назначить совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_appoint_co_owner(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** назначили совладельцем комнаты {member.mention}.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Назначить совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_error_action_with_room(ctx: commands.Context, action: str):
+    personal_rooms_embed = Embed(title=f"{action}",
+                                 description=f"{ctx.author.mention}, выбранный пользователь должен иметь доступ к комнате.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_not_co_owner(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, у Вашей комнаты еще нет совладельца.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Убрать совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_confirmation_delete_co_owner(ctx: commands.Context, member: int):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить совладельца** комнаты <@{member}>?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Убрать совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_delete_co_owner(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** убрали совладельца комнаты.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Убрать совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_transfer_room(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, выберите **пользователя**, которому хотите передать права на свою комнату.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Передать права на комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_confirmation_transfer_room(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **передать права** на комнату пользователю {member.mention}?",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Передать права на комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_transfer_room(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** передали права на комнату {member.mention}.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Передать права на комнату", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_user_already_room(ctx: commands.Context, member: disnake.Member):
+    personal_rooms_embed = Embed(title=f"Передать права на комнату",
+                                 description=f"{ctx.author.mention}, выбранный Вами пользователь {member.mention} уже является владельцем комнаты.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_buy_user_limit(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, выберите **лимит** для получения дополнительных слотов личной комнаты.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Увеличить лимит пользователей", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_success_buy_user_limit(ctx: commands.Context, user_limit: int, cost_user_limit: int):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** расширили количесто слотов до {user_limit} за {cost_user_limit} <:coin_mewbae:1272661482991124481>.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Увеличить лимит пользователей", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_max_user_limit(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, у Вас уже **максимальное количество** слотов личной комнаты.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Увеличить лимит пользователей", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+# room info
+def set_info_room(ctx: commands.Context, room_name: str, role: disnake.Role, owner: int, co_owner: int, time_pay: int, members: int):
+    time = datetime.fromtimestamp(time_pay)
+    time_create = time - timedelta(days=30)
+    formatted_time = time_create.strftime("%d.%m.%Y %H:%M")
+
+    personal_rooms_embed = Embed(description=f"**Роль:** {role.mention}\n" \
+                                 f"**Владелец:** <@{owner}>\n" \
+                                 f"**Совладелец:** {f"<@{co_owner}>" if co_owner != 0 else 'не назначен'}\n\n" \
+                                 f"> Комната:\n```{room_name}```\n"\
+                                 f"> Участников:\n```{members}```",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Информация о личной комнате", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_footer(text=f"Дата создания | {formatted_time}")
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_invalid_info_room(ctx: commands.Context):
+    personal_rooms_embed = Embed(title=f"Информация о личной комнате",
+                                 description=f"{ctx.author.mention}, к сожалению, комнаты с такой ролью не существует.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_info_members_room(ctx: commands.Context, room_name: str, members: list, owner: int, co_owner: int):
+    members_with_role = "\n".join([
+        f"**{index + 1})** {member.mention} "
+        f"{'— владелец' if member.id == owner else ''}"
+        f"{'— совладелец' if member.id == co_owner else ''}"
+        for index, member in enumerate(members)
+    ])
+    personal_rooms_embed = Embed(description=f"**Участники:**\n{members_with_role}",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Список участников комнаты — {room_name}", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed

@@ -3,7 +3,7 @@ from sqlalchemy import select, delete, update, or_
 
 from modules.Logger import *
 from database.models import async_session
-from database.models import User, PersonalRole, Marriage, Transaction
+from database.models import User, PersonalRole, Marriage, Transaction, PersonalRoom
 
 import json
 from datetime import datetime, timedelta
@@ -99,7 +99,7 @@ async def add_new_marriage(member_id_1: int, member_id_2: int):
         marriage = await session.scalar(select(Marriage).where(Marriage.partner_1 == member_id_1, Marriage.partner_2 == member_id_2))
         if not marriage:
             session.add(Marriage(partner_1=member_id_1, partner_2=member_id_2, time=int(time_pay.timestamp()), balance=0, 
-                                 reg_marry=int(time_create.timestamp()), love_room=json.dumps(room), id_room=0))
+                                 reg_marry=int(time_create.timestamp()), love_room=json.dumps(room)))
             await session.execute(update(User).where(User.id == member_id_1).values(marry=True if False else False))
             await session.execute(update(User).where(User.id == member_id_2).values(marry=True if False else False))
             await session.commit()
@@ -244,6 +244,115 @@ async def change_cost_role_in_shop(role_id: int, new_shop_cost: int):
         await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(shop_cost=new_shop_cost))
         await session.commit()
 
+'''Personal rooms'''
+
+# add new personal room
+async def add_room(member_id: int, role_id: int, members: str):
+    async with async_session() as session:
+        time_pay = datetime.now() + timedelta(days=30)
+        room = {"name": 0, "total_hours": 0, "total_minutes": 0, "joined_at": 0, "id": 0}
+
+        personal_room = await session.scalar(select(PersonalRoom).where(PersonalRoom.id == role_id))
+        if not personal_room:
+            session.add(PersonalRoom(id=role_id, owner=member_id, time=int(time_pay.timestamp()), limit=members, personal_room=json.dumps(room)))
+            await session.commit()
+
+# get all owners for payment 
+async def get_all_owners():
+    async with async_session() as session:
+        results = await session.scalars(select(PersonalRoom.owner).distinct())
+        results = results.all()
+        return results if results else False
+    
+# if personal room is exists
+async def is_exists_room(id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom).where(or_(PersonalRoom.owner == id, PersonalRoom.co_owner == id, PersonalRoom.id == id)))
+        return True if result is not None else False
+
+# get data personal room
+async def get_info_room(id: int):
+    async with async_session() as session:
+        results = await session.execute(select(PersonalRoom.id, PersonalRoom.owner, PersonalRoom.co_owner, PersonalRoom.time, PersonalRoom.limit).where(or_(PersonalRoom.owner == id, PersonalRoom.co_owner == id, PersonalRoom.id == id)))
+        return results.first()
+
+# get data voice channel
+async def get_personal_room_data(id: int):
+    async with async_session() as session:
+        room =  await session.scalar(select(PersonalRoom.personal_room).where(or_(PersonalRoom.owner == id, PersonalRoom.co_owner == id, PersonalRoom.id == id)))
+        personal_room_data = json.loads(room)
+        return personal_room_data
+
+# change room name in db
+async def update_room_name(member_id: int, type: str, value: str):
+    async with async_session() as session:
+        personal_room_data = await get_personal_room_data(member_id)
+        personal_room_data[type] = value
+        await session.execute(update(PersonalRoom).where(or_(PersonalRoom.owner == member_id, PersonalRoom.co_owner == member_id)).values(personal_room=json.dumps(personal_room_data)))
+        await session.commit()
+
+# update user limit
+async def update_user_limit(member_id: int, new_limit: str):
+    async with async_session() as session:
+        await session.execute(update(PersonalRoom).where(PersonalRoom.owner == member_id).values(limit=new_limit))
+        await session.commit()
+
+# get room owner
+async def get_room_owner(member_id):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom.owner).where(or_(PersonalRoom.owner == member_id, PersonalRoom.co_owner == member_id)))
+        return result
+    
+# get co_owner
+async def get_room_co_owner(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom.co_owner).where(PersonalRoom.owner == member_id))
+        return result if result != 0 else False
+
+# get time to pay
+async def get_time_to_pay_room(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom.time).where(PersonalRoom.owner == member_id))
+        return result
+
+# update time to pay
+async def update_time_to_pay_room(member_id: int):
+    async with async_session() as session:
+        new_time = datetime.now() + timedelta(days=30)
+        await session.execute(update(PersonalRoom).where(PersonalRoom.owner == member_id).values(time=int(new_time.timestamp())))
+        await session.commit()
+    
+# add new co-owner
+async def add_co_owner(member_id: int, co_owner: int):
+    async with async_session() as session:
+        await session.execute(update(PersonalRoom).where(PersonalRoom.owner == member_id).values(co_owner=co_owner))
+        await session.commit()
+
+# delete co-owner
+async def delete_co_owner(member_id: int):
+    async with async_session() as session:
+        await session.execute(update(PersonalRoom).where(PersonalRoom.owner == member_id).values(co_owner=0))
+        await session.commit()
+
+# delete room
+async def delete_room(member_id: int):
+    async with async_session() as session:
+        room = await session.scalar(select(PersonalRoom).where(PersonalRoom.owner == member_id))
+        await session.delete(room)
+        await session.commit()
+
+# change owner 
+async def add_new_owner(member_id: int, new_owner: int):
+    async with async_session() as session:
+        await session.execute(update(PersonalRoom).where(PersonalRoom.owner == member_id).values(owner=new_owner))
+        await session.commit()
+
+# if user already owner
+async def is_user_already_owner(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom).where(PersonalRoom.owner == member_id))
+        return True if result is not None else False
+    
 '''Transactions'''
 
 # add transaction

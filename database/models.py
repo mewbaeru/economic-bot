@@ -33,6 +33,16 @@ class PersonalRole(Base):
     shop_cost: Mapped[int] = mapped_column(default=0)
     count_user: Mapped[int] = mapped_column(default=0)
 
+class PersonalRoom(Base):
+    __tablename__ = 'personal_rooms'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    owner: Mapped[int] = mapped_column()
+    co_owner: Mapped[int] = mapped_column(default=0)
+    time: Mapped[int] = mapped_column()
+    limit: Mapped[str] = mapped_column(String(2))
+    personal_room: Mapped[str] = mapped_column(String(100))
+
 class Marriage(Base):
     __tablename__ = 'marriages'
 
