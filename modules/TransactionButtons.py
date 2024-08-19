@@ -5,7 +5,7 @@ from modules.Embeds import *
 
 # transaction
 class TransactionView(View):
-    def __init__(self, ctx, user, page, transactions, total_pages, timeout=120):
+    def __init__(self, ctx, user, page, transactions, total_pages, timeout=60):
         super().__init__(timeout=timeout)
         self.ctx = ctx
         self.user = user
@@ -18,8 +18,14 @@ class TransactionView(View):
     
     async def update_embed(self, interaction):
         self.page = max(min(self.page, self.total_pages), 1)
-        embed = set_transaction(self.user, self.transactions, self.page, self.total_pages)
+        embed = set_transaction(self.ctx, self.user, self.transactions, self.page, self.total_pages)
         await interaction.response.edit_message(embed=embed, view=self)
+    
+    @button(label='⋘', custom_id='first_transation')
+    async def first_transation(self, button, interaction):
+        if interaction.user.id == self.ctx.author.id:
+            self.page = 1
+            await self.update_embed(interaction)
 
     @button(label='≪', custom_id='back_transaction')
     async def button_back_transaction(self, button, interaction):
@@ -36,4 +42,10 @@ class TransactionView(View):
     async def button_next_transaction(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page += 1
+            await self.update_embed(interaction)
+    
+    @button(label='⋙', custom_id='last_transaction')
+    async def last_transaction(self, button, interaction):
+        if interaction.user.id == self.ctx.author.id:
+            self.page = self.total_pages
             await self.update_embed(interaction)

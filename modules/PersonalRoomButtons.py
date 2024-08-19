@@ -4,7 +4,7 @@ from disnake.ui import View, button, Button, UserSelect, StringSelect
 
 from modules.Logger import *
 from modules.Embeds import *
-from database.requests import add_room, take_money, add_transaction, update_room_name, delete_room, get_room_co_owner, add_co_owner, get_room_owner, delete_co_owner, add_new_owner, is_user_already_owner, update_user_limit, get_balance, give_money
+from database.requests import add_room, take_money, add_transaction, update_room_name, delete_room, get_room_co_owner, add_co_owner, get_room_owner, delete_co_owner, add_new_owner, is_user_already_owner, update_user_limit, get_balance
 
 from datetime import datetime
 

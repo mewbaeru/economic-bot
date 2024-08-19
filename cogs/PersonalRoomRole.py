@@ -16,7 +16,6 @@ except Exception:
 class PersonalRoomRole(commands.Cog):
     def __init__(self, client):
         self.client = client
-
         self.monthly_payment.start()
 
     # room

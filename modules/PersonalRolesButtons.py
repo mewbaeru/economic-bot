@@ -19,7 +19,7 @@ class RoleConfirmationView(View):
         self.settings_prices = settings_prices
 
     async def on_timeout(self):
-        embed = set_create_role_timeout(self.ctx)
+        embed = set_invalid_time(self.ctx, 'Создание личной роли')
         await self.ctx.send(embed=embed, view=View())
     
     @button(label='Да', custom_id='btn_yes')
@@ -158,7 +158,7 @@ class RolesEdit(View):
                         embed = set_success_change_name_role(self.ctx, self.role)
                         await interaction.response.edit_message(embed=embed, view=View())
                     else:
-                        embed = set_error_symbols_change_name_role(self.ctx, self.role)
+                        embed = set_error_symbols_change_name(self.ctx)
                         await interaction.send(embed=embed, ephemeral=True, view=View())
             
             button_yes_verify.callback = button_callback_yes_verify
@@ -300,6 +300,7 @@ class RolesEdit(View):
                 if interaction.user.id == self.ctx.author.id:
                     await add_give_by_owner(self.role.id, selected_user.id)
                     await selected_user.add_roles(self.role)
+                    logger.info(f'/role manage give - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_user: {selected_user.id}')
                     embed = set_success_give_role(self.ctx, self.role, selected_user)
                     await interaction.response.edit_message(embed=embed, view=View())
 
@@ -370,6 +371,7 @@ class RolesEdit(View):
                 if interaction.user.id == self.ctx.author.id:
                     await delete_give_by_owner(self.role.id, selected_user.id)
                     await selected_user.remove_roles(self.role)
+                    logger.info(f'/role manage take - owner: {self.ctx.author.id} - role_id: {self.role.id} - user: {selected_user.id}')
                     embed = set_success_take_role(self.ctx, self.role, selected_user)
                     await interaction.response.edit_message(embed=embed, view=View())
 

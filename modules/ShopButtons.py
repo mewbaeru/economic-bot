@@ -9,7 +9,7 @@ from datetime import datetime
 
 # shop
 class ShopView(View):
-    def __init__(self, ctx, page, roles, total_pages, settings_roles, settings_prices , timeout=120):
+    def __init__(self, ctx, page, roles, total_pages, settings_roles, settings_prices , timeout=60):
         super().__init__(timeout=timeout)
         self.ctx = ctx
         self.page = page

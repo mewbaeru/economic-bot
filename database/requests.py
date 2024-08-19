@@ -139,25 +139,31 @@ async def is_exists_role(member_id: int):
         result = await session.scalar(select(PersonalRole.id).where(PersonalRole.owner == member_id))
         return True if result is not None else False
 
+# get all personal roles on guild
+async def get_all_owners_personal_roles():
+    async with async_session() as session:
+        results = await session.scalars(select(PersonalRole.owner).distinct())
+        results = results.all()
+        return results if results else False
+    
 # get user personal roles
-async def get_all_roles(member_id: int):
+async def get_all_roles_users(member_id: int):
     async with async_session() as session:
         results = await session.execute(select(PersonalRole.id).where(PersonalRole.owner == member_id))
         return results.scalars().all()
     
 # get time to pay
-async def get_time_to_pay(member_id: int):
+async def get_time_to_pay(id: int):
     async with async_session() as session:
-        result = await session.scalar(select(PersonalRole.time).where(PersonalRole.owner == member_id))
+        result = await session.scalar(select(PersonalRole.time).where(or_(PersonalRole.owner == id, PersonalRole.id == id)))
         return result
-    
+
 # update time to pay
-async def update_time_to_pay(member_id: int):
+async def update_time_to_pay(role_id: int):
     async with async_session() as session:
-        new_time_pay = datetime.now() + timedelta(days=30)
-        if datetime.now() > PersonalRole.time:
-            await session.execute(update(PersonalRole.time).where(User.id == member_id).values(time=new_time_pay))
-            await session.commit()
+        new_time = datetime.now() + timedelta(days=30)
+        await session.execute(update(PersonalRole).where(PersonalRole.id == role_id).values(time=int(new_time.timestamp())))
+        await session.commit()
 
 # add role given by owner
 async def add_give_by_owner(role_id: int, member_id: str):

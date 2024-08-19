@@ -2,7 +2,7 @@ from disnake import Option
 from disnake.ext import commands, tasks
 from disnake.ui import Select
 
-from database.requests import get_balance, is_exists_role, get_all_roles, get_time_to_pay, delete_role, get_give_by_owner, is_exists_role_in_shop, get_cost_role_in_shop
+from database.requests import get_balance, is_exists_role, get_all_roles_users, get_time_to_pay, delete_role, get_give_by_owner, is_exists_role_in_shop, get_cost_role_in_shop, get_all_owners_personal_roles, update_time_to_pay
 from modules import *
 
 guild_id = Utils.get_guild_id()
@@ -16,6 +16,7 @@ except Exception:
 class PersonalRoles(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.monthly_payment.start()
 
     # role
     @commands.slash_command(name='role', guild_ids=[guild_id])
@@ -34,11 +35,11 @@ class PersonalRoles(commands.Cog):
             try:
                 colour = await commands.ColourConverter().convert(ctx, color)
             except Exception:
-                embed = set_invalid_color()
+                embed = set_invalid_color(ctx)
                 await ctx.response.send_message(embed=embed, ephemeral=True)
                 return
         else:
-            embed = set_invalid_money()
+            embed = set_invalid_money(ctx, 'Создание личной роли', await get_balance(ctx.author.id))
             await ctx.response.send_message(embed=embed, ephemeral=True)
             return
         
@@ -57,7 +58,7 @@ class PersonalRoles(commands.Cog):
 
             # menu for choose a role
             select_menu = Select(placeholder='Выберите настраиваемую роль', max_values=1)
-            roles = await get_all_roles(ctx.author.id)
+            roles = await get_all_roles_users(ctx.author.id)
 
             for role in roles:
                 n_role = disnake.utils.get(ctx.guild.roles, id=role)
@@ -88,6 +89,30 @@ class PersonalRoles(commands.Cog):
                     await take_money(ctx.author.id, settings_prices.get('role_create'))
                 else:
                     await delete_role(ctx.author.id)
+    
+    @tasks.loop(hours=24)
+    async def monthly_payment(self):
+        owners = await get_all_owners_personal_roles()
+        if owners:
+            for owner_id in owners:
+                roles = await get_all_roles_users(owner_id)
+                for role_id in roles:
+                    time_to_pay = await get_time_to_pay(role_id)
+                    if time_to_pay and datetime.now() >= datetime.fromtimestamp(time_to_pay):
+                        if await get_balance(owner_id) >= settings_prices.get('role_create'):
+                            print(await get_balance(owner_id))
+                            print(settings_prices.get('role_create'))
+                            await update_time_to_pay(role_id)
+                            await take_money(owner_id, settings_prices.get('role_create'))
+
+                            logger.info(f'/payment role - owner: {owner_id} - role_id {role_id}')
+                            # add new transaction
+                            await add_transaction(owner_id, f'Оплата личной роли', -settings_prices.get('role_create'), datetime.now())
+                        else:
+                            await delete_role(role_id)
+                            logger.info(f'/payment role - delete role - owner: {owner_id}')
+        else:
+            logger.info(f'/payment role - no roles')
 
 def setup(client):
     client.add_cog(PersonalRoles(client))

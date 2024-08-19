@@ -16,9 +16,13 @@ async def connect_to_db():
     await async_main()
 
 # load cogs
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        client.load_extension(f'cogs.{filename[:-3]}')
+for directory in ['./cogs', './cogs/voice_channels']:
+    for filename in os.listdir(directory):
+        if filename.endswith('.py'):
+            if directory == './cogs':
+                client.load_extension(f'cogs.{filename[:-3]}')
+            elif directory == './cogs/voice_channels':
+                client.load_extension(f'cogs.voice_channels.{filename[:-3]}')
 
 asyncio.run(connect_to_db())
 
