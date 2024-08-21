@@ -1,4 +1,4 @@
-from sqlalchemy import String, Boolean, Integer, JSON
+from sqlalchemy import String, Boolean, Integer, JSON, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 
@@ -21,6 +21,15 @@ class User(Base):
     count_messages: Mapped[int] = mapped_column(default=0)
     daily: Mapped[int] = mapped_column(nullable=True)
     marry: Mapped[bool] = mapped_column(default=False)
+
+class VoiceActivity(Base):
+    __tablename__ = 'voice_activity'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    joined_at: Mapped[int] = mapped_column(default=0)
+    left_at: Mapped[int] = mapped_column(default=0)
+    total_minutes: Mapped[int] = mapped_column(default=0)
+    total_hours: Mapped[int] = mapped_column(default=0)
 
 class PersonalRole(Base):
     __tablename__ = 'personal_roles'

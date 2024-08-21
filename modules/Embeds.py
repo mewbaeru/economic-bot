@@ -862,3 +862,11 @@ def set_info_members_room(ctx: commands.Context, room_name: str, members: list, 
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Список участников комнаты — {room_name}", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_rooms_embed
+
+# online
+def set_online_user(ctx: commands.Context, member: disnake.Member, total_minutes: int, total_hours: int):
+    online_embed = Embed(description=f"> Общий голосовой онлайн\n```{total_hours} ч {total_minutes} м```",
+                         color=0x2f3136)
+    online_embed.set_author(name=f"{ctx.guild.name} | Голосовой онлайн — {member.name}", icon_url=ctx.guild.icon.url)
+    online_embed.set_thumbnail(url=member.display_avatar.url)
+    return online_embed
