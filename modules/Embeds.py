@@ -1,3 +1,4 @@
+import json
 import disnake
 from disnake.ext import commands
 from disnake import Embed
@@ -870,3 +871,75 @@ def set_online_user(ctx: commands.Context, member: disnake.Member, total_minutes
     online_embed.set_author(name=f"{ctx.guild.name} | Голосовой онлайн — {member.name}", icon_url=ctx.guild.icon.url)
     online_embed.set_thumbnail(url=member.display_avatar.url)
     return online_embed
+
+# top
+def set_top_balance(ctx: commands.Context, top: list):
+    top_embed = Embed(color=0x2f3136)
+    description = '> Топ 10\n'
+
+    for i, (user_id, balance) in enumerate(top):
+        description += f"**{i+1}.** <@{user_id}> — {balance} <:coin_mewbae:1272661482991124481>\n"
+    
+    top_embed.description = description
+    top_embed.set_author(name=f"{ctx.guild.name} | Топ по балансу", icon_url=ctx.guild.icon.url)
+    top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+
+    return top_embed
+
+def set_top_online(ctx: commands.Context, top: list):
+    top_embed = Embed(color=0x2f3136)
+    description = '> Топ 10\n'
+
+    for i, (user_id, total_hours, total_minutes) in enumerate(top):
+        description += f"**{i+1}.** <@{user_id}> — `{total_hours} ч {total_minutes} мин`\n"
+    
+    top_embed.description = description
+    top_embed.set_author(name=f"{ctx.guild.name} | Топ по онлайну", icon_url=ctx.guild.icon.url)
+    top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+
+    return top_embed
+
+def set_top_messages(ctx: commands.Context, top: list):
+    top_embed = Embed(color=0x2f3136)
+    description = '> Топ 10\n'
+
+    for i, (user_id, count_messages) in enumerate(top):
+        description += f"**{i+1}.** <@{user_id}> — {count_messages} сообщений\n"
+    
+    top_embed.description = description
+    top_embed.set_author(name=f"{ctx.guild.name} | Топ по сообщениям", icon_url=ctx.guild.icon.url)
+    top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+
+    return top_embed
+
+def set_top_marriage(ctx: commands.Context, top: list):
+    top_embed = Embed(color=0x2f3136)
+    description = '> Топ 10\n'
+
+    for i, (partner_1, partner_2, total_hours, total_minutes) in enumerate(top):
+        description += f"**{i+1}.** <@{partner_1}> ♡ <@{partner_2}> — `{total_hours} ч {total_minutes} мин`\n"
+    
+    top_embed.description = description
+    top_embed.set_author(name=f"{ctx.guild.name} | Топ по бракам", icon_url=ctx.guild.icon.url)
+    top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+
+    return top_embed
+
+def set_top_personal_room(ctx: commands.Context, top: list):
+    top_embed = Embed(color=0x2f3136)
+    description = '> Топ 10\n'
+
+    for i, (role_id, total_hours, total_minutes) in enumerate(top):
+        description += f"**{i+1}.** <@&{role_id}> — `{total_hours} ч {total_minutes} мин`\n"
+    
+    top_embed.description = description
+    top_embed.set_author(name=f"{ctx.guild.name} | Топ по личным комнатам", icon_url=ctx.guild.icon.url)
+    top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+
+    return top_embed
+
+def set_not_top(ctx: commands.Context):
+    error_embed = Embed(title=f"Топ",
+                        description=f"{ctx.author.mention}, к сожалению, такого топа не существует.",
+                        color=0x2f3136)
+    return error_embed

@@ -1,4 +1,5 @@
 import disnake
+from sqlalchemy import func, desc
 from sqlalchemy import select, delete, update, or_
 
 from modules.Logger import *
@@ -88,6 +89,20 @@ async def get_marry(member_id: int):
         result = await session.scalar(select(User.marry).where(User.id == member_id))
         return result
 
+# get balance users for top
+async def get_top_user_balance():
+    async with async_session() as session:
+        results = await session.execute(select(User.id, User.cash).order_by(desc(User.cash)).limit(10))
+        results = results.all()
+        return results
+
+# get messages users for top
+async def get_top_user_messages():
+    async with async_session() as session:
+        results = await session.execute(select(User.id, User.count_messages).order_by(desc(User.count_messages)).limit(10))
+        results = results.all()
+        return results
+
 '''Voice activity'''
 
 # add user voice activity
@@ -142,6 +157,13 @@ async def null_user_dates(member_id: int):
         await session.execute(update(VoiceActivity).where(VoiceActivity.id == member_id).values(joined_at=0, left_at=0))
         await session.commit()
 
+# get voice activity users for top
+async def get_top_user_online():
+    async with async_session() as session:
+        results = await session.execute(select(VoiceActivity.id, VoiceActivity.total_hours, VoiceActivity.total_minutes).order_by(desc(VoiceActivity.total_hours), desc(VoiceActivity.total_minutes)))
+        results = results.all()
+        return results
+    
 '''Marriages'''
 
 async def add_new_marriage(member_id_1: int, member_id_2: int):
@@ -175,6 +197,13 @@ async def get_info_marriage(member_id: int):
     async with async_session() as session:
         results = await session.execute(select(Marriage.partner_1, Marriage.partner_2, Marriage.balance, Marriage.reg_marry, Marriage.love_room).where(or_(Marriage.partner_1 == member_id, Marriage.partner_2 == member_id)))
         return results.first()
+    
+# get voice activity for top
+async def get_top_marriage_online():
+    async with async_session() as session:
+        results = await session.execute(select(Marriage.partner_1, Marriage.partner_2, func.json_extract(Marriage.love_room, "$.total_hours").label("total_hours"), func.json_extract(Marriage.love_room, "$.total_minutes").label("total_minutes")).order_by(desc("total_hours"), desc("total_minutes")).limit(10))
+        results = results.all()
+        return results
     
 '''Personal_roles'''
 
@@ -427,6 +456,13 @@ async def is_user_already_owner(member_id: int):
     async with async_session() as session:
         result = await session.scalar(select(PersonalRoom).where(PersonalRoom.owner == member_id))
         return True if result is not None else False
+
+# get voice activity for top
+async def get_top_personal_room_online():
+    async with async_session() as session:
+        results = await session.execute(select(PersonalRoom.id, func.json_extract(PersonalRoom.personal_room, "$.total_hours").label("total_hours"), func.json_extract(PersonalRoom.personal_room, "$.total_minutes").label("total_minutes")).order_by(desc("total_hours"), desc("total_minutes")).limit(10))
+        results = results.all()
+        return results
     
 '''Transactions'''
 
