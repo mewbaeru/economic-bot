@@ -1,4 +1,6 @@
+import os
 import json
+import random
 
 class Utils:
     def __init__(self):
@@ -48,3 +50,10 @@ class Utils:
     
     def is_active_game(self, member_id):
         return member_id in self.ActiveGames
+    
+    # random gif for role play
+    def get_random_gif(subfolder):
+        gif_files = [file for file in os.listdir(f'./assets/role_play_gif/{subfolder}') if file.endswith('.gif')]
+        random_gif = random.choice(gif_files)
+        random_gif_path = os.path.join(f'./assets/role_play_gif/{subfolder}/', random_gif)
+        return random_gif_path

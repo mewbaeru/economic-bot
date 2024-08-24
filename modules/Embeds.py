@@ -967,3 +967,16 @@ def set_not_top(ctx: commands.Context):
                         description=f"{ctx.author.mention}, к сожалению, такого топа не существует.",
                         color=0x2f3136)
     return error_embed
+
+# role play
+def set_rp(ctx: commands.Context, member: disnake.Member, act: str, action_on_oneself: str, prepositions: str, random_gif_path: str):
+    if ctx.author.id == member.id:
+        user = f'{action_on_oneself}'
+    else:
+        user = f'{prepositions} {member.mention}'
+
+    role_play_embed =  Embed(description=f"> {ctx.author.mention} {act} {user}",
+                             color=0x2f3136)
+    role_play_embed.set_image(file=random_gif_path)
+    role_play_embed.set_author(name=f"{ctx.guild.name} | Социальные команды", icon_url=ctx.guild.icon.url)
+    return role_play_embed
