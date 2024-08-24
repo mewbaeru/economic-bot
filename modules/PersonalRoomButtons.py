@@ -1,5 +1,5 @@
 import asyncio
-from disnake import SelectOption
+from disnake import SelectOption, ButtonStyle
 from disnake.ui import View, button, Button, UserSelect, StringSelect
 
 from modules.Logger import *
@@ -23,7 +23,7 @@ class RoomConfirmationView(View):
         embed = set_invalid_time(self.ctx, 'Создание личной комнаты')
         await self.ctx.send(embed=embed, view=View())
     
-    @button(label='Да', custom_id='btn_yes')
+    @button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes')
     async def button_callback_yes(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             role = await self.ctx.guild.create_role(name=self.name)
@@ -43,7 +43,7 @@ class RoomConfirmationView(View):
             self.stop()
             await interaction.response.edit_message(embed=embed, view=View())
     
-    @button(label='Нет', custom_id='btn_no')
+    @button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no')
     async def button_callback_no(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.stop()
@@ -52,7 +52,7 @@ class RoomConfirmationView(View):
 # room manage
 class RoomsEdit(View): 
     def __init__(self, ctx, role, room_name, co_owner, time_pay, members, user_limit, settings_prices, timeout=120): 
-        super().__init__(timeout=timeout) 
+        super().__init__(timeout=timeout)
         self.ctx = ctx 
         self.role = role
         self.members = members
@@ -62,22 +62,23 @@ class RoomsEdit(View):
         self.user_limit = user_limit
         self.settings_prices = settings_prices
 
-        self.button_back = Button(label='Отмена', custom_id='btn_back', row=1)
+        self.button_back = Button(label='Отмена', custom_id='btn_back', style=ButtonStyle.red, row=1)
+        self.button_back_edit_role = Button(label='Вернуться к управлению', custom_id='btn_back_edit', style=ButtonStyle.primary)
         if not self.ctx.author.id == self.co_owner:
             # add select menu for edit room by owner
             self.select_menu = StringSelect(
                 placeholder = '🔎 Выберите действие',
                 options = [
-                    SelectOption(label='Изменить название комнаты', value='change_name_room'),
-                    SelectOption(label='Изменить название роли', value='change_name_role'),
-                    SelectOption(label='Изменить цвет роли', value='change_color_role'),
-                    SelectOption(label='Назначить совладельца', value='appoint_co_owner'),
-                    SelectOption(label='Убрать совладельца', value='remove_co_owner'),
-                    SelectOption(label='Выдать доступ', value='give_role'),
-                    SelectOption(label='Забрать доступ', value='take_role'),
-                    SelectOption(label='Передать права на комнату', value='tranfer_room'),
-                    SelectOption(label='Увеличить лимит пользователей', value='increase_limit'),
-                    SelectOption(label='Удалить комнату', value='delete_room'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить название комнаты', value='change_name_room'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить название роли', value='change_name_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить цвет роли', value='change_color_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Назначить совладельца', value='appoint_co_owner'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Убрать совладельца', value='remove_co_owner'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Выдать доступ', value='give_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Забрать доступ', value='take_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Передать права на комнату', value='tranfer_room'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Увеличить лимит пользователей', value='increase_limit'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Удалить комнату', value='delete_room'),
                 ]
             )
             self.select_menu.callback = self.select_menu_callback
@@ -87,11 +88,11 @@ class RoomsEdit(View):
             self.select_menu = StringSelect(
                 placeholder = '🔎 Выберите действие',
                 options = [
-                    SelectOption(label='Изменить название комнаты', value='change_name_room'),
-                    SelectOption(label='Изменить название роли', value='change_name_role'),
-                    SelectOption(label='Изменить цвет роли', value='change_color_role'),
-                    SelectOption(label='Выдать доступ', value='give_role'),
-                    SelectOption(label='Забрать доступ', value='take_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить название комнаты', value='change_name_room'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить название роли', value='change_name_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить цвет роли', value='change_color_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Выдать доступ', value='give_role'),
+                    SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Забрать доступ', value='take_role'),
                 ]
             )
             self.select_menu.callback = self.select_menu_callback
@@ -152,16 +153,21 @@ class RoomsEdit(View):
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
                     if len(message.content) <= 100:
+                        view = View()
+                        self.button_back_edit_role.callback = self.button_callback_back
+                        view.add_item(self.button_back_edit_role)
+
                         await update_room_name(self.ctx.author.id, 'name', message.content)
                         logger.info(f'/change name room - owner: {self.ctx.author.id} - room_id: {self.role.id} - new_name: {self.room_name}')
+                        self.room_name = message.content
                         embed = set_success_change_name_room(self.ctx, message.content)
-                        await interaction.response.edit_message(embed=embed, view=View())
+                        await interaction.response.edit_message(embed=embed, view=view)
                     else:
                         embed = set_error_symbols_change_name(self.ctx)
                         await interaction.send(embed=embed, ephemeral=True, view=View())
@@ -203,16 +209,20 @@ class RoomsEdit(View):
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
                     if len(message.content) <= 100:
+                        view = View()
+                        self.button_back_edit_role.callback = self.button_callback_back
+                        view.add_item(self.button_back_edit_role)
+
                         await self.role.edit(name=f'{message.content}')
                         logger.info(f'/change name room role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_name: {self.role.name}')
                         embed = set_success_change_name_role(self.ctx, self.role)
-                        await interaction.response.edit_message(embed=embed, view=View())
+                        await interaction.response.edit_message(embed=embed, view=view)
                     else:
                         embed = set_error_symbols_change_name(self.ctx)
                         await interaction.send(embed=embed, ephemeral=True, view=View())
@@ -266,15 +276,19 @@ class RoomsEdit(View):
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+                
                     await self.role.edit(color=colour)
                     logger.info(f'/change color room role - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_color: {colour}')
                     embed = set_success_change_color_role(self.ctx, self.role)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
             
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_back
@@ -294,10 +308,11 @@ class RoomsEdit(View):
 
             # select menu with users
             class SelectUsers(UserSelect):
-                def __init__(self, ctx, role):
+                def __init__(self, ctx, role, co_owner):
                     super().__init__(placeholder='Выберите пользователя')
                     self.ctx = ctx
                     self.role = role
+                    self.co_owner = co_owner
             
                 async def callback(self, interaction):
                         user_id = int(interaction.data['values'][0])
@@ -315,6 +330,10 @@ class RoomsEdit(View):
                             embed = set_invalid_user(self.ctx, 'Назначить совладельца комнаты', 'себя')
                             await interaction.send(embed=embed, ephemeral=True, view=View())
                             return
+                        elif user_id == self.co_owner:
+                            embed = set_user_co_owner(self.ctx)
+                            await interaction.send(embed=embed, ephemeral=True, view=View())
+                            return
                         elif role := interaction.user.get_role(self.role.id):
                             if selected_user.get_role(role.id):
                                 await view_verify(selected_user, interaction)
@@ -323,7 +342,7 @@ class RoomsEdit(View):
                                 await interaction.send(embed=embed, ephemeral=True, view=View())
                                 return
             
-            view.add_item(SelectUsers(self.ctx, self.role))
+            view.add_item(SelectUsers(self.ctx, self.role, self.co_owner))
             co_owner = await get_room_co_owner(self.ctx.author.id)
             if co_owner:
                 embed = set_already_co_owner(self.ctx, co_owner)
@@ -335,15 +354,20 @@ class RoomsEdit(View):
             async def view_verify(selected_user, interaction):
                 view_verify = View()
 
-                button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-                button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+                button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+                button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
                 async def button_callback_yes_verify(interaction):
                     if interaction.user.id == self.ctx.author.id:
+                        view = View()
+                        self.button_back_edit_role.callback = self.button_callback_back
+                        view.add_item(self.button_back_edit_role)
+
                         await add_co_owner(self.ctx.author.id, selected_user.id)
                         logger.info(f'/room manage appoint co-owner - owner: {self.ctx.author.id} - role_id: {self.role.id} - co-owner: {selected_user.id}')
+                        self.co_owner = selected_user.id
                         embed = set_success_appoint_co_owner(self.ctx, selected_user)
-                        await interaction.response.edit_message(embed=embed, view=View())
+                        await interaction.response.edit_message(embed=embed, view=view)
 
                 button_yes_verify.callback = button_callback_yes_verify
                 button_no_verify.callback = self.button_callback_back
@@ -359,16 +383,21 @@ class RoomsEdit(View):
             if await get_room_co_owner(self.ctx.author.id) != 0:
                 view_verify = View()
 
-                button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-                button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+                button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+                button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
                 async def button_callback_yes_verify(interaction):
                     if interaction.user.id == self.ctx.author.id:
+                        view = View()
+                        self.button_back_edit_role.callback = self.button_callback_back
+                        view.add_item(self.button_back_edit_role)
+
                         await delete_co_owner(self.ctx.author.id)
                         logger.info(f'/delete room co-owner - owner: {self.ctx.author.id}')
+                        self.co_owner = 0
 
                         embed = set_success_delete_co_owner(self.ctx)
-                        await interaction.response.edit_message(embed=embed, view=View())
+                        await interaction.response.edit_message(embed=embed, view=view)
 
                 button_yes_verify.callback = button_callback_yes_verify
                 button_no_verify.callback = self.button_callback_back
@@ -435,15 +464,20 @@ class RoomsEdit(View):
         async def view_verify(selected_user, interaction):
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+                    
                     await selected_user.add_roles(self.role)
                     logger.info(f'/room manage give - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_user: {selected_user.id}')
+                    self.members.append(selected_user)
                     embed = set_success_give_room(self.ctx, selected_user)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
 
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_back
@@ -508,15 +542,20 @@ class RoomsEdit(View):
         async def view_verify(selected_user, interaction):
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+                
                     await selected_user.remove_roles(self.role)
                     logger.info(f'/room manage take - owner: {self.ctx.author.id} - role_id: {self.role.id} - user: {selected_user.id}')
+                    self.members.remove(selected_user)
                     embed = set_success_take_room(self.ctx, selected_user)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
 
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_back
@@ -575,8 +614,8 @@ class RoomsEdit(View):
         async def view_verify(selected_user, interaction):
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
@@ -600,6 +639,10 @@ class RoomsEdit(View):
 
         async def button_callback_buy_limit(interaction, limit, value):
             if await get_balance(self.ctx.author.id) >= value:
+                view = View()
+                self.button_back_edit_role.callback = self.button_callback_back
+                view.add_item(self.button_back_edit_role)
+            
                 await update_user_limit(self.ctx.author.id, limit)
                 await take_money(self.ctx.author.id, value)
 
@@ -607,8 +650,10 @@ class RoomsEdit(View):
                 # add new transaction
                 await add_transaction(self.ctx.author.id, f'Увеличение слотов в личной комнате до {limit}', -value, datetime.now())
 
+                self.user_limit = limit
+
                 embed = set_success_buy_user_limit(self.ctx, limit, value)
-                await interaction.response.edit_message(embed=embed, view=View())
+                await interaction.response.edit_message(embed=embed, view=view)
             else:
                 embed = set_invalid_money(self.ctx, 'Увеличение слотов в личной комнате', await get_balance(self.ctx.author.id))
                 await interaction.send(embed=embed, ephemeral=True, view=View())
@@ -619,7 +664,7 @@ class RoomsEdit(View):
             for limit, value in users_limit.items():
                 if int(limit) > int(self.user_limit):
                     max_limit_reached = False
-                    button_buy_limit = Button(label=f"{limit}")
+                    button_buy_limit = Button(label=f"{limit}", style=ButtonStyle.primary)
                     button_buy_limit.callback = lambda i=interaction, l=limit, v=value: button_callback_buy_limit(i, l, v)
                     view.add_item(button_buy_limit)
             
@@ -636,8 +681,8 @@ class RoomsEdit(View):
         if interaction.user.id == self.ctx.author.id:
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:

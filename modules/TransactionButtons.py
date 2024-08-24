@@ -1,3 +1,4 @@
+from disnake import ButtonStyle
 from disnake.ui import View, button
 
 from modules.Logger import *
@@ -21,30 +22,30 @@ class TransactionView(View):
         embed = set_transaction(self.ctx, self.user, self.transactions, self.page, self.total_pages)
         await interaction.response.edit_message(embed=embed, view=self)
     
-    @button(label='⋘', custom_id='first_transation')
+    @button(emoji='<:arrow_1_mewbae:1276607084221300738>', custom_id='first_transation')
     async def first_transation(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page = 1
             await self.update_embed(interaction)
 
-    @button(label='≪', custom_id='back_transaction')
+    @button(emoji='<:arrow_2_mewbae:1276607019528486985>', custom_id='back_transaction')
     async def button_back_transaction(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page -= 1
             await self.update_embed(interaction)
     
-    @button(label='🗑️', custom_id='delete_transaction')
+    @button(emoji='<:negative_squared_cross_mark_mewb:1276598003699814510>', custom_id='delete_transaction', style=ButtonStyle.red)
     async def buttin_delete_transaction(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             await interaction.message.delete()
 
-    @button(label='≫', custom_id='next_transaction')
+    @button(emoji='<:arrow_3_mewbae:1276607041288536095>', custom_id='next_transaction')
     async def button_next_transaction(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page += 1
             await self.update_embed(interaction)
     
-    @button(label='⋙', custom_id='last_transaction')
+    @button(emoji='<:arrow_4_mewbae:1276607061123137589>', custom_id='last_transaction')
     async def last_transaction(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page = self.total_pages

@@ -4,7 +4,6 @@ from modules.Logger import *
 from modules.Embeds import *
 from database.requests import take_money, add_transaction, add_new_marriage
 
-import random
 from datetime import datetime
 
 # coinflip
@@ -16,7 +15,7 @@ class MarryView(View):
         self.role_marry = role_marry
         self.cost_marry = cost_marry
     
-    @button(label='Да', custom_id='btn_yes')
+    @button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes')
     async def button_callback_yes(self, button, interaction):
         if interaction.user == self.member:
             await take_money(self.ctx.author.id, self.cost_marry)
@@ -33,7 +32,7 @@ class MarryView(View):
             embed = set_success_marry(self.ctx, self.member)
             await interaction.response.edit_message(embed=embed, view=View())
 
-    @button(label='Нет', custom_id='btn_no')
+    @button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no')
     async def button_callback_no(self, button, interaction):
         embed = set_refusal_wedding(self.ctx, self.member)
         await interaction.response.edit_message(embed=embed, view=View())

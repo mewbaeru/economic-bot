@@ -1,4 +1,4 @@
-from disnake import SelectOption
+from disnake import SelectOption, ButtonStyle
 from disnake.ui import View, button, Button, StringSelect
 
 from modules.Logger import *
@@ -25,36 +25,37 @@ class ShopView(View):
         self.role_prices = {}
 
         for i, (role_id, time, owner_id, price, count) in enumerate(self.page_roles):
-            self.buy_buttons.append(Button(label=f'{(self.page-1)*5+i+1}', custom_id=f'buy_role_{role_id}', row=0))
+            self.buy_buttons.append(Button(label=f'{(self.page-1)*5+i+1}', custom_id=f'buy_role_{role_id}', style=ButtonStyle.primary, row=0))
 
             self.role_owners[role_id] = owner_id
             self.role_prices[role_id] = price
             
             self.buy_buttons[i].callback = self.button_callback_buy_role
             self.add_item(self.buy_buttons[i])
-
+        
         # add select menu for sorting roles
         self.sorting_select_menu = StringSelect(
             placeholder = '🔎 Сортировать роли',
             options = [
-                SelectOption(label='Сначала новые', value='new_roles'),
-                SelectOption(label='Сначала старые', value='old_roles'),
-                # not done
-                SelectOption(label='Сначала дешевые', value='cheap_roles'),
-                SelectOption(label='Сначала дорогие', value='rich_roles'),
-                SelectOption(label='Сначала популярные', value='popular_roles'),
-                SelectOption(label='Сначала непопулярные', value='unpopular_roles'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Сначала новые', value='new_roles'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Сначала старые', value='old_roles'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Сначала дешевые', value='cheap_roles'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Сначала дорогие', value='rich_roles'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Сначала популярные', value='popular_roles'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Сначала непопулярные', value='unpopular_roles'),
             ]
         )
         self.sorting_select_menu.callback = self.sorting_select_menu_callback
         self.add_item(self.sorting_select_menu)
 
+        self.button_back_edit_role = Button(label='Вернуться в магазин', custom_id='btn_back_shop', style=ButtonStyle.primary, row=0)
+
         # add select menu for choose shop
         self.choose_shop_select_menu = StringSelect(
             placeholder = '🔎 Выбор магазина',
             options = [
-                SelectOption(label='Магазин ролей', value='roles_shop'),
-                SelectOption(label='Магазин прочего', value='another_shop'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Магазин ролей', value='roles_shop'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Магазин прочего', value='another_shop'),
             ]
         )
         self.choose_shop_select_menu.callback = self.choose_shop_select_menu_callback
@@ -67,20 +68,25 @@ class ShopView(View):
     async def update_embed(self, interaction):
         self.page = max(min(self.page, self.total_pages), 1)
         embed = set_shop(self.ctx, self.roles, self.page, self.total_pages)
-        await interaction.response.edit_message(embed=embed, view=ShopView(self.ctx, self.page, self.roles, self.total_pages, self.settings_roles.get('role_of_sending_images'), 
-                                                                           self.settings_prices.get('add_role_of_sending_images')))
+        await interaction.response.edit_message(embed=embed, view=ShopView(self.ctx, self.page, self.roles, self.total_pages, self.settings_roles, 
+                                                                           self.settings_prices))
     
+    # button callback back to the shop
+    async def button_callback_back(self, interaction):
+        if interaction.user.id == self.ctx.author.id:
+            await self.update_embed(interaction)
+
     # set embed with another shop
     async def another_shop(self, interaction):
         view = View()
 
         self.page = max(min(self.page, self.total_pages), 1)
-        buy_button = Button(label='1', custom_id='buy_additional_role')
+        buy_button = Button(label='1', custom_id='buy_additional_role', style=ButtonStyle.primary)
         buy_button.callback = self.button_callback_buy_additional_role
         view.add_item(buy_button)
         view.add_item(self.choose_shop_select_menu)
 
-        embed = set_another_shop(self.ctx, 1500, self.page, self.total_pages)
+        embed = set_another_shop(self.ctx, self.settings_prices.get('add_role_of_sending_images'), self.page, self.total_pages)
         await interaction.response.edit_message(embed=embed, view=view)
 
     async def button_callback_buy_role(self, interaction):
@@ -97,18 +103,21 @@ class ShopView(View):
             if await get_balance(self.ctx.author.id) >= await get_cost_role_in_shop(role_id):
                 pass
             else:
-                await give_money(self.ctx.author.id, 100000)
                 embed = set_invalid_money(self.ctx, 'Приобретение роли', await get_balance(self.ctx.author.id))
                 await interaction.send(embed=embed, ephemeral=True, view=View())
                 return
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:check_mark_mewbae:1275893364876906578>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:negative_squared_cross_mark_mewb:1275899985677910116>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+
                     await add_count_user(role_id)
                     await take_money(self.ctx.author.id, await get_cost_role_in_shop(role_id))
                     await give_money(self.role_owners[role_id], self.role_prices[role_id])
@@ -120,7 +129,7 @@ class ShopView(View):
                                             -self.role_prices[role_id], datetime.now())
                     
                     embed = set_success_buy_role(self.ctx, role, await get_cost_role_in_shop(role_id))
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
 
             async def button_callback_no_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
@@ -159,6 +168,10 @@ class ShopView(View):
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+
                     await take_money(self.ctx.author.id, self.settings_prices.get('add_role_of_sending_images'))
                     additional_role = disnake.utils.get(self.ctx.guild.roles, id=self.settings_roles.get('role_of_sending_images'))
                     await interaction.user.add_roles(additional_role)
@@ -170,7 +183,7 @@ class ShopView(View):
                     
                     embed = set_success_buy_additional_role(self.ctx, self.settings_roles.get('role_of_sending_images'), 
                                                             self.settings_prices.get('add_role_of_sending_images'))
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
             
             async def button_callback_no_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
@@ -239,30 +252,30 @@ class ShopView(View):
         self.page_roles = self.roles[(self.page-1)*5:self.page*5]
         await self.update_embed(interaction)
         
-    @button(label='⋘', custom_id='first_page_shop', row=3)
+    @button(emoji='<:arrow_1_mewbae:1276607084221300738>', custom_id='first_page_shop', row=3)
     async def button_first_page_shop(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page = 1
             await self.update_embed(interaction)
 
-    @button(label='≪', custom_id='back_page_shop', row=3)
+    @button(emoji='<:arrow_2_mewbae:1276607019528486985>', custom_id='back_page_shop', row=3)
     async def button_back_page_shop(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page -= 1
             await self.update_embed(interaction)
     
-    @button(label='🗑️', custom_id='delete_shop', row=3)
+    @button(emoji='<:negative_squared_cross_mark_mewb:1276598003699814510>', custom_id='delete_shop', style=ButtonStyle.red, row=3)
     async def buttin_delete_shop(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             await interaction.message.delete()
 
-    @button(label='≫', custom_id='next_page_shop', row=3)
+    @button(emoji='<:arrow_3_mewbae:1276607041288536095>', custom_id='next_page_shop', row=3)
     async def button_next_page_shop(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page += 1
             await self.update_embed(interaction)
     
-    @button(label='⋙', custom_id='last_page_shop', row=3)
+    @button(emoji='<:arrow_4_mewbae:1276607061123137589>', custom_id='last_page_shop', row=3)
     async def button_last_page_shop(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.page = self.total_pages

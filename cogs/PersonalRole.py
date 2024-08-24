@@ -62,7 +62,7 @@ class PersonalRoles(commands.Cog):
 
             for role in roles:
                 n_role = disnake.utils.get(ctx.guild.roles, id=role)
-                select_menu.add_option(label=f'{n_role.name}', value=f'{n_role.id}')
+                select_menu.add_option(emoji='<:dot_mewbae:1276887777937588365>', label=f'{n_role.name}', value=f'{n_role.id}')
             
             async def callback(interaction):
                 role = disnake.utils.get(ctx.guild.roles, id=int(select_menu.values[0]))

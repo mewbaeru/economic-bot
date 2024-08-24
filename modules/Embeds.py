@@ -94,7 +94,8 @@ def set_create_role_timeout(ctx: commands.Context):
     return personal_roles_embed
 
 def set_role_creation_confirmation(ctx: commands.Context, role_name: str, color: str, cost_role_create: int):
-    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите создать роль `{role_name}` за {cost_role_create} <:coin_mewbae:1272661482991124481>?",
+    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите создать роль `{role_name}` за {cost_role_create} <:coin_mewbae:1272661482991124481>?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=color)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Создание роли", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -121,9 +122,9 @@ def set_edit_role(ctx: commands.Context, role: disnake.role, give_by_user: list,
     personal_roles_embed = Embed(description=f"**Название роли:** {role.mention};\n**Цвет роли:** `{role.color}`;\n" \
                                  f"**Выдана пользователям:** {members_with_role};\n**Время оплаты:** <t:{time_pay}>.",
                                  color=0x2f3136)
-    personal_roles_embed.add_field(name=f"**Добавлена в магазин**", value=f"```{'Да' if shop_status else 'Нет'}```", inline=True)
+    personal_roles_embed.add_field(name=f"> Добавлена в магазин", value=f"```{'Да' if shop_status else 'Нет'}```", inline=True)
     if shop_status is True:
-        personal_roles_embed.add_field(name=f"**Стоимость роли**", value=f"```{shop_cost}```", inline=True)
+        personal_roles_embed.add_field(name=f"> Стоимость роли", value=f"```{shop_cost}```", inline=True)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Управление личной ролью", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_footer(text=f"Не забудьте положить на счет стоимость личной роли ({cost_role_create}) до следующего дня оплаты")
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -145,7 +146,8 @@ def set_change_name_role(ctx: commands.Context, role: disnake.role):
 
 def set_confirmation_change_name_role(ctx: commands.Context, role_name: str, cost_role_change_name: int):
     personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить название** роли на `{role_name}` "
-                                 f"за {cost_role_change_name} <:coin_mewbae:1272661482991124481>?",
+                                 f"за {cost_role_change_name} <:coin_mewbae:1272661482991124481>?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Изменение названия роли", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -167,7 +169,8 @@ def set_change_color_role(ctx: commands.Context, role: disnake.role):
 
 def set_confirmation_change_color_role(ctx: commands.Context, role_color: str, cost_role_change_color: int):
     personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить цвет** роли на `{role_color}` "
-                                 f"за {cost_role_change_color} <:coin_mewbae:1272661482991124481>?",
+                                 f"за {cost_role_change_color} <:coin_mewbae:1272661482991124481>?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Изменение цвета роли", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -209,7 +212,8 @@ def set_not_give_user_role(ctx: commands.Context):
     return personal_roles_embed
 
 def set_confirmation_give_role(ctx: commands.Context, role: disnake.role, member: disnake.Member):
-    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **выдать роль** {role.mention} пользователю {member.mention}?",
+    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **выдать роль** {role.mention} пользователю {member.mention}?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Выдача роли пользователю", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -243,7 +247,8 @@ def set_error_already_have_role(ctx: commands.Context):
     return personal_roles_embed
 
 def set_confirmation_take_role(ctx: commands.Context, role: disnake.role, member: disnake.Member):
-    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **забрать роль** {role.mention} у пользователя {member.mention}?",
+    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **забрать роль** {role.mention} у пользователя {member.mention}?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Забрать роль у пользователя", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -263,7 +268,8 @@ def set_error_have_role(ctx: commands.Context):
     return personal_roles_embed
 
 def set_confirmation_delete_role(ctx: commands.Context, role: disnake.role):
-    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить роль** {role.mention}?",
+    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить роль** {role.mention}?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Удаление роли", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_footer(text='Возврат средств, потраченных на роль, не осуществляется')
@@ -285,7 +291,8 @@ def set_add_role_to_shop(ctx: commands.Context, role: disnake.role):
     return personal_roles_embed
 
 def set_confirmation_add_role_to_shop(ctx: commands.Context, role: disnake.role, role_cost: int):
-    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **добавить роль** {role.mention} в магазин со стоимостью {role_cost} <:coin_mewbae:1272661482991124481>?",
+    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **добавить роль** {role.mention} в магазин со стоимостью {role_cost} <:coin_mewbae:1272661482991124481>?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Добавление роли в магазин", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -313,7 +320,8 @@ def set_change_cost_role(ctx: commands.Context, role: disnake.role):
     return personal_roles_embed
 
 def set_confirmation_change_cost_role(ctx: commands.Context, role: disnake.role, new_role_cost: int):
-    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить стоимость роли** {role.mention} в магазине на стоимость {new_role_cost} <:coin_mewbae:1272661482991124481>?",
+    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить стоимость роли** {role.mention} в магазине на стоимость {new_role_cost} <:coin_mewbae:1272661482991124481>?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Изменение стоимости роли в магазине", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -341,7 +349,8 @@ def set_invalid_cost_role(ctx: commands.Context, action: str):
     return personal_roles_embed
 
 def set_confirmation_delete_role_from_shop(ctx: commands.Context, role: disnake.role):
-    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить роль** {role.mention} из магазина?.",
+    personal_roles_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить роль** {role.mention} из магазина?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_roles_embed.set_author(name=f"{ctx.guild.name} | Удаление роли из магазина", icon_url=ctx.guild.icon.url)
     personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -574,7 +583,8 @@ def set_user_already_have_room(ctx: commands.Context):
     return personal_rooms_embed
 
 def set_room_creation_confirmation(ctx: commands.Context, room_name: str, cost_create_room: int):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention} Вы уверены, что хотите создать комнату с названием `{room_name}` за {cost_create_room} <:coin_mewbae:1272661482991124481>?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention} Вы уверены, что хотите создать комнату с названием `{room_name}` за {cost_create_room} <:coin_mewbae:1272661482991124481>?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Создание личной комнаты", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -590,7 +600,7 @@ def set_create_room(ctx: commands.Context, role: disnake.role):
 # room manage
 def set_edit_room(ctx: commands.Context, room_name: str, role: disnake.role, co_owner: int, time_pay: int, members: list, user_limit: int, cost_room_create: int):
     time = datetime.fromtimestamp(time_pay)
-    formatted_time = time.strftime("%d.%m.%Y %H:%M")
+    formatted_time = time.strftime("%d.%m.%Y")
     members_with_role = "\n".join([f"**{index + 1})** {member.mention}" for index, member in enumerate(members)])
 
     personal_rooms_embed = Embed(description=f"**Роль:** {role.mention}\n" \
@@ -619,7 +629,8 @@ def set_change_name_room(ctx: commands.Context, room_name: str):
     return personal_rooms_embed
 
 def set_confirmation_change_name(ctx: commands.Context, action: str, name: str):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить название** {action} на `{name}`?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить название** {action} на `{name}`?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Изменение названия {action}", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -633,7 +644,8 @@ def set_success_change_name_room(ctx: commands.Context, room_name: str):
     return personal_rooms_embed
 
 def set_confirmation_change_color(ctx: commands.Context, color: str):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить цвет** роли на `{color}`?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **изменить цвет** роли на `{color}`?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Изменение цвета роли", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -651,7 +663,8 @@ def set_give_user_room(ctx: commands.Context, user_limit: int):
     return personal_rooms_embed
 
 def set_confirmation_give_room(ctx: commands.Context, member: disnake.Member):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **выдать доступ** в комнату пользователю {member.mention}?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **выдать доступ** в комнату пользователю {member.mention}?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Выдача доступа в комнату", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -686,7 +699,8 @@ def set_take_user_room(ctx: commands.Context):
     return personal_rooms_embed
 
 def set_confirmation_take_room(ctx: commands.Context, member: disnake.Member):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **забрать доступ** в комнату у пользователя {member.mention}?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **забрать доступ** в комнату у пользователя {member.mention}?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Забрать доступ в комнату", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -707,7 +721,8 @@ def set_invalid_room_owner(ctx: commands.Context):
     return personal_rooms_embed
 
 def set_confirmation_delete_room(ctx: commands.Context):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить** свою комнату?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **удалить** свою комнату?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Удаление комнаты", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_footer(text='Возврат средств, потраченных на комнату, не осуществляется')
@@ -737,7 +752,8 @@ def set_already_co_owner(ctx: commands.Context, co_owner: int):
     return personal_rooms_embed
 
 def set_confirmation_appoint_co_owner(ctx: commands.Context, member: disnake.Member):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **назначить совладельцем** комнаты пользователя {member.mention}?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **назначить совладельцем** комнаты пользователя {member.mention}?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Назначить совладельца комнаты", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -747,6 +763,13 @@ def set_success_appoint_co_owner(ctx: commands.Context, member: disnake.Member):
     personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** назначили совладельцем комнаты {member.mention}.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Назначить совладельца комнаты", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
+def set_user_co_owner(ctx: commands.Context):
+    personal_rooms_embed = Embed(title=f"Назначить совладельца комнаты",
+                                 description=f"{ctx.author.mention}, выбранный пользователь уже является совладельцем.",
+                                 color=0x2f3136)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return personal_rooms_embed
 
@@ -786,7 +809,8 @@ def set_transfer_room(ctx: commands.Context):
     return personal_rooms_embed
 
 def set_confirmation_transfer_room(ctx: commands.Context, member: disnake.Member):
-    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **передать права** на комнату пользователю {member.mention}?",
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, Вы уверены, что хотите **передать права** на комнату пользователю {member.mention}?\n\n" \
+                                 "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
                                  color=0x2f3136)
     personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Передать права на комнату", icon_url=ctx.guild.icon.url)
     personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)

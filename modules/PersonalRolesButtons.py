@@ -1,5 +1,5 @@
 import asyncio
-from disnake import SelectOption
+from disnake import SelectOption, ButtonStyle
 from disnake.ui import View, button, Button, UserSelect, StringSelect
 
 from modules.Logger import *
@@ -22,7 +22,7 @@ class RoleConfirmationView(View):
         embed = set_invalid_time(self.ctx, 'Создание личной роли')
         await self.ctx.send(embed=embed, view=View())
     
-    @button(label='Да', custom_id='btn_yes')
+    @button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes')
     async def button_callback_yes(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             role = await self.ctx.guild.create_role(name=self.name)
@@ -42,7 +42,7 @@ class RoleConfirmationView(View):
             self.stop()
             await interaction.response.edit_message(embed=embed, view=View())
     
-    @button(label='Нет', custom_id='btn_no')
+    @button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no')
     async def button_callback_no(self, button, interaction):
         if interaction.user.id == self.ctx.author.id:
             self.stop()
@@ -60,18 +60,19 @@ class RolesEdit(View):
         self.settings_roles = settings_roles 
         self.settings_prices = settings_prices
 
-        self.button_back = Button(label='Отмена', custom_id='btn_back', row=1)
+        self.button_back = Button(label='Отмена', custom_id='btn_back', style=ButtonStyle.red, row=1)
+        self.button_back_edit_role = Button(label='Вернуться к управлению', custom_id='btn_back_edit', style=ButtonStyle.primary)
         self.select_menu = StringSelect(
             placeholder = '🔎 Выберите действие',
             options = [
-                SelectOption(label='Изменить название', value='change_name'),
-                SelectOption(label='Изменить цвет', value='change_color'),
-                SelectOption(label='Выдать роль', value='give_role'),
-                SelectOption(label='Забрать роль', value='take_role'),
-                SelectOption(label='Добавить в магазин', value='add_shop'),
-                SelectOption(label='Изменить стоимость', value='change_cost'),
-                SelectOption(label='Удалить из магазина', value='delete_from_shop'),
-                SelectOption(label='Удалить роль', value='delete_role'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить название', value='change_name'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить цвет', value='change_color'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Выдать роль', value='give_role'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Забрать роль', value='take_role'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Добавить в магазин', value='add_shop'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Изменить стоимость', value='change_cost'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Удалить из магазина', value='delete_from_shop'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Удалить роль', value='delete_role'),
             ]
         )
         self.select_menu.callback = self.select_menu_callback
@@ -86,7 +87,7 @@ class RolesEdit(View):
                                   self.shop_status, self.shop_cost)
             await interaction.response.edit_message(embed=embed, view=self)
             return
-
+    
     async def button_callback_no_verify(self, interaction):
         if interaction.user.id == self.ctx.author.id:
             embed = set_edit_role(self.ctx, self.role, await get_give_by_owner(self.role.id), self.time_pay, self.settings_prices.get('role_create'), 
@@ -141,12 +142,16 @@ class RolesEdit(View):
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
                     if len(message.content) <= 100:
+                        view = View()
+                        self.button_back_edit_role.callback = self.button_callback_back
+                        view.add_item(self.button_back_edit_role)
+
                         await take_money(self.ctx.author.id, self.settings_prices.get('role_change_name'))
                         await self.role.edit(name=f'{message.content}')
 
@@ -156,7 +161,7 @@ class RolesEdit(View):
                                                 -self.settings_prices.get('role_change_name'), datetime.now())
 
                         embed = set_success_change_name_role(self.ctx, self.role)
-                        await interaction.response.edit_message(embed=embed, view=View())
+                        await interaction.response.edit_message(embed=embed, view=view)
                     else:
                         embed = set_error_symbols_change_name(self.ctx)
                         await interaction.send(embed=embed, ephemeral=True, view=View())
@@ -217,11 +222,15 @@ class RolesEdit(View):
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+
                     await take_money(self.ctx.author.id, self.settings_prices.get('role_change_color'))
                     await self.role.edit(color=colour)
 
@@ -231,7 +240,7 @@ class RolesEdit(View):
                                             -self.settings_prices.get('role_change_color'), datetime.now())
                     
                     embed = set_success_change_color_role(self.ctx, self.role)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
             
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_no_verify
@@ -293,16 +302,20 @@ class RolesEdit(View):
         async def view_verify(selected_user, interaction):
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+
                     await add_give_by_owner(self.role.id, selected_user.id)
                     await selected_user.add_roles(self.role)
                     logger.info(f'/role manage give - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_user: {selected_user.id}')
                     embed = set_success_give_role(self.ctx, self.role, selected_user)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
 
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_no_verify
@@ -364,16 +377,20 @@ class RolesEdit(View):
         async def view_verify(selected_user, interaction):
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+
                     await delete_give_by_owner(self.role.id, selected_user.id)
                     await selected_user.remove_roles(self.role)
                     logger.info(f'/role manage take - owner: {self.ctx.author.id} - role_id: {self.role.id} - user: {selected_user.id}')
                     embed = set_success_take_role(self.ctx, self.role, selected_user)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
 
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_no_verify
@@ -415,16 +432,22 @@ class RolesEdit(View):
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+
                     await add_role_to_shop(self.role.id, message.content)
+                    self.shop_status = True
+                    self.shop_cost = message.content
                     logger.info(f'/add role to shop - owner: {self.ctx.author.id} - role_id: {self.role.id} - cost: {message.content}')
 
                     embed = set_success_add_role_to_shop(self.ctx, self.role, message.content)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
             
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_no_verify
@@ -474,16 +497,21 @@ class RolesEdit(View):
             
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:
+                    view = View()
+                    self.button_back_edit_role.callback = self.button_callback_back
+                    view.add_item(self.button_back_edit_role)
+
                     await change_cost_role_in_shop(self.role.id, message.content)
+                    self.shop_cost = message.content
                     logger.info(f'/change cost role to shop - owner: {self.ctx.author.id} - role_id: {self.role.id} - new_cost: {message.content}')
 
                     embed = set_success_change_cost_role(self.ctx, self.role, message.content)
-                    await interaction.response.edit_message(embed=embed, view=View())
+                    await interaction.response.edit_message(embed=embed, view=view)
             
             button_yes_verify.callback = button_callback_yes_verify
             button_no_verify.callback = self.button_callback_no_verify
@@ -506,16 +534,21 @@ class RolesEdit(View):
             if await is_exists_role_in_shop(self.role.id):
                 view_verify = View()
 
-                button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-                button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+                button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+                button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
                 async def button_callback_yes_verify(interaction):
                     if interaction.user.id == self.ctx.author.id:
+                        view = View()
+                        self.button_back_edit_role.callback = self.button_callback_back
+                        view.add_item(self.button_back_edit_role)
+
                         await delete_role_from_shop(self.role.id)
+                        self.shop_status = False
                         logger.info(f'/delete role from shop - owner: {self.ctx.author.id} - role_id: {self.role.id}')
 
                         embed = set_success_delete_role_from_shop(self.ctx)
-                        await interaction.response.edit_message(embed=embed, view=View())
+                        await interaction.response.edit_message(embed=embed, view=view)
                 
                 button_yes_verify.callback = button_callback_yes_verify
                 button_no_verify.callback = self.button_callback_no_verify
@@ -538,8 +571,8 @@ class RolesEdit(View):
         if interaction.user.id == self.ctx.author.id:
             view_verify = View()
 
-            button_yes_verify = Button(label='Да', custom_id='btn_yes_verify')
-            button_no_verify = Button(label='Нет', custom_id='btn_no_verify')
+            button_yes_verify = Button(emoji='<:gray_check_mark_mewbae:1276606963203047555>', custom_id='btn_yes_verify')
+            button_no_verify = Button(emoji='<:gray_negative_squared_cross_mark:1276606994752737433>', custom_id='btn_no_verify')
 
             async def button_callback_yes_verify(interaction):
                 if interaction.user.id == self.ctx.author.id:

@@ -1,4 +1,5 @@
 import asyncio
+from disnake import ButtonStyle
 from disnake.ui import View, button, Button
 
 from modules.Logger import *
@@ -25,7 +26,13 @@ class CoinflipView(View):
     async def button_callback_tails(self, button, interaction):
         await self.handle_game(interaction, 'Решка')
     
-    async def on_timeout(self):
+    @button(emoji='<:negative_squared_cross_mark_mewb:1276598003699814510>', custom_id='btn_delete', style=ButtonStyle.red)
+    async def button_callback_delete_game(self, button, interaction):
+        if self.ctx.author.id == interaction.user.id:
+            self.utils.stop_game(self.ctx.author.id)
+            await interaction.message.delete()
+
+    async def on_timeout(self, interaction):
         if self.ctx.author.id in self.utils.ActiveGames:
             self.utils.stop_game(self.ctx.author.id)
         return
@@ -42,7 +49,7 @@ class CoinflipView(View):
 
     async def process_result(self, interaction, random_win, chosen_side):
         view = View()
-        button_repeat_game = Button(label='Сыграть с той же ставкой', custom_id='btn_repeat_game')
+        button_repeat_game = Button(label='Сыграть с той же ставкой', custom_id='btn_repeat_game', style=ButtonStyle.blurple)
         button_repeat_game.callback = self.button_callback_repeat_game
         view.add_item(button_repeat_game)
 
@@ -89,7 +96,7 @@ class DuelView(View):
             self.opponent = interaction.user
             await self.handle_game_duel(interaction)
 
-    @button(label='Отмена', custom_id='btn_delete')
+    @button(emoji='<:negative_squared_cross_mark_mewb:1276598003699814510>', custom_id='btn_delete', style=ButtonStyle.red)
     async def button_callback_delete_game(self, button, interaction):
         if self.ctx.author.id == interaction.user.id:
             self.utils.stop_game(self.ctx.author.id)
