@@ -1,7 +1,7 @@
 import disnake
 from disnake.ext import commands, tasks
 
-from database.requests import add_user, save_messages_count
+from database.requests import add_user, add_user_voice_activity, save_messages_count
 from modules import *
 
 guild_id = Utils.get_guild_id()
@@ -19,6 +19,7 @@ class Economy(commands.Cog):
 
         for member in members:
             await add_user(member)
+            await add_user_voice_activity(member)
         
         self.messages.start()
 
@@ -26,6 +27,7 @@ class Economy(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         await add_user(member)
+        await add_user_voice_activity(member)
     
     # message counter
     @tasks.loop(seconds=30)

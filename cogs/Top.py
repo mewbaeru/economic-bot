@@ -26,29 +26,29 @@ class Top(commands.Cog):
     async def top(self, ctx, category):
         logger.debug('/top - start')
         if category == 'Баланс':
-            top = await get_top_user_balance()
-            embed = set_top_balance(ctx, top)
+            top, author_rank = await get_top_user_balance(ctx.author.id)
+            embed = set_top_balance(ctx, top, author_rank)
             await ctx.response.send_message(embed=embed)
         elif category == 'Онлайн':
-            top = await get_top_user_online()
-            embed = set_top_online(ctx, top)
+            top, author_rank = await get_top_user_online(ctx.author.id)
+            embed = set_top_online(ctx, top, author_rank)
             await ctx.response.send_message(embed=embed)
         elif category == 'Сообщения':
-            top = await get_top_user_messages()
-            embed = set_top_messages(ctx, top)
+            top, author_rank = await get_top_user_messages(ctx.author.id)
+            embed = set_top_messages(ctx, top, author_rank)
             await ctx.response.send_message(embed=embed)
         elif category == 'Браки':
-            if top is not None:
-                top = await get_top_marriage_online()
-                embed = set_top_marriage(ctx, top)
-                await ctx.response.send_message(embed=embed)
-            else:
-                embed = set_not_top(ctx)
-                await ctx.response.send_message(embed=embed, ephemeral=True)
+                top, author_rank = await get_top_marriage_online(ctx.author.id)
+                if top is not None:
+                    embed = set_top_marriage(ctx, top, author_rank)
+                    await ctx.response.send_message(embed=embed)
+                else:
+                    embed = set_not_top(ctx)
+                    await ctx.response.send_message(embed=embed, ephemeral=True)
         elif category == 'Личные комнаты':
-            top = await get_top_personal_room_online()
+            top, author_rank = await get_top_personal_room_online(ctx.author.id)
             if top is not None:
-                embed = set_top_personal_room(ctx, top)
+                embed = set_top_personal_room(ctx, top, author_rank)
                 await ctx.response.send_message(embed=embed)
             else:
                 embed = set_not_top(ctx)

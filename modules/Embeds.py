@@ -447,7 +447,7 @@ def set_transaction(ctx: commands.Context, user: disnake.Member, transactions: l
     description = ''
     
     for category, value, time in page_transactions:
-        description += f"◦ {value} <:coin_mewbae:1272661482991124481> — <t:{time}> — {category}\n\n"
+        description += f"<:dot_mewbae:1276887777937588365> {value} <:coin_mewbae:1272661482991124481> — <t:{time}> — {category}\n\n"
     
     transaction_embed.description = description
     transaction_embed.set_author(name=f"{ctx.guild.name} | Транзакции — {user.name}", icon_url=ctx.guild.icon.url)
@@ -540,7 +540,6 @@ def set_active_marry(ctx: commands.Context):
     marry_embed = Embed(title='Заключить брак',
                         description=f"{ctx.author.mention}, Вы уже находитесь в браке.",
                         color=0x2f3136)
-    marry_embed.set_author(name=f"{ctx.guild.name} | Заключить брак", icon_url=ctx.guild.icon.url)
     marry_embed.set_thumbnail(url=ctx.author.display_avatar.url)
     return marry_embed
 
@@ -897,65 +896,70 @@ def set_online_user(ctx: commands.Context, member: disnake.Member, total_minutes
     return online_embed
 
 # top
-def set_top_balance(ctx: commands.Context, top: list):
+def set_top_balance(ctx: commands.Context, top: list, author_rank: int):
     top_embed = Embed(color=0x2f3136)
-    description = '> Топ 10\n'
+    description = '> Топ 10 пользователей\n'
 
     for i, (user_id, balance) in enumerate(top):
         description += f"**{i+1}.** <@{user_id}> — {balance} <:coin_mewbae:1272661482991124481>\n"
     
+    description += f"\nВаше место в топе — **{author_rank}**"
     top_embed.description = description
     top_embed.set_author(name=f"{ctx.guild.name} | Топ по балансу", icon_url=ctx.guild.icon.url)
     top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
 
     return top_embed
 
-def set_top_online(ctx: commands.Context, top: list):
+def set_top_online(ctx: commands.Context, top: list, author_rank: int):
     top_embed = Embed(color=0x2f3136)
-    description = '> Топ 10\n'
+    description = '> Топ 10 пользователей\n'
 
     for i, (user_id, total_hours, total_minutes) in enumerate(top):
         description += f"**{i+1}.** <@{user_id}> — `{total_hours} ч {total_minutes} мин`\n"
     
+    description += f"\nВаше место в топе — **{author_rank}**"
     top_embed.description = description
     top_embed.set_author(name=f"{ctx.guild.name} | Топ по онлайну", icon_url=ctx.guild.icon.url)
     top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
 
     return top_embed
 
-def set_top_messages(ctx: commands.Context, top: list):
+def set_top_messages(ctx: commands.Context, top: list, author_rank: int):
     top_embed = Embed(color=0x2f3136)
-    description = '> Топ 10\n'
+    description = '> Топ 10 пользователей\n'
 
     for i, (user_id, count_messages) in enumerate(top):
         description += f"**{i+1}.** <@{user_id}> — {count_messages} сообщений\n"
     
+    description += f"\nВаше место в топе — **{author_rank}**"
     top_embed.description = description
     top_embed.set_author(name=f"{ctx.guild.name} | Топ по сообщениям", icon_url=ctx.guild.icon.url)
     top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
 
     return top_embed
 
-def set_top_marriage(ctx: commands.Context, top: list):
+def set_top_marriage(ctx: commands.Context, top: list, author_rank: int):
     top_embed = Embed(color=0x2f3136)
-    description = '> Топ 10\n'
+    description = '> Топ 10 любовных комнат\n'
 
     for i, (partner_1, partner_2, total_hours, total_minutes) in enumerate(top):
         description += f"**{i+1}.** <@{partner_1}> ♡ <@{partner_2}> — `{total_hours} ч {total_minutes} мин`\n"
     
+    description += f"\nВаше место в топе — **{author_rank}**" if author_rank is not None else ""
     top_embed.description = description
     top_embed.set_author(name=f"{ctx.guild.name} | Топ по бракам", icon_url=ctx.guild.icon.url)
     top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
 
     return top_embed
 
-def set_top_personal_room(ctx: commands.Context, top: list):
+def set_top_personal_room(ctx: commands.Context, top: list, author_rank: int):
     top_embed = Embed(color=0x2f3136)
-    description = '> Топ 10\n'
+    description = '> Топ 10 личный комнат\n'
 
-    for i, (role_id, total_hours, total_minutes) in enumerate(top):
+    for i, (role_id, owner, total_hours, total_minutes) in enumerate(top):
         description += f"**{i+1}.** <@&{role_id}> — `{total_hours} ч {total_minutes} мин`\n"
     
+    description += f"\nВаше место в топе — **{author_rank}**" if author_rank is not None else ""
     top_embed.description = description
     top_embed.set_author(name=f"{ctx.guild.name} | Топ по личным комнатам", icon_url=ctx.guild.icon.url)
     top_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)

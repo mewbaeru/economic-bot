@@ -32,6 +32,8 @@ class PersonalRoomRole(commands.Cog):
                           ]
     )
     async def create(self, ctx, name: str, color: str, members: str):
+        logger.debug('/room create - start')
+        
         room_prices = settings_prices.get('room_create')
         price_users_limit = settings_prices.get('users_limit')
         total_price = room_prices + price_users_limit[members]
@@ -60,6 +62,8 @@ class PersonalRoomRole(commands.Cog):
     # room manage
     @role.sub_command(name='manage', description='Управление личной комнатой')
     async def manage(self, ctx):
+        logger.debug('/room manage - start')
+
         if await is_exists_room(ctx.author.id):
             personal_room_data = await get_personal_room_data(ctx.author.id)
             info_room = await get_info_room(ctx.author.id)

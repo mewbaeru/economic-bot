@@ -90,18 +90,32 @@ async def get_marry(member_id: int):
         return result
 
 # get balance users for top
-async def get_top_user_balance():
+async def get_top_user_balance(member_id: int):
     async with async_session() as session:
-        results = await session.execute(select(User.id, User.cash).order_by(desc(User.cash)).limit(10))
+        results = await session.execute(select(User.id, User.cash).order_by(desc(User.cash)))
         results = results.all()
-        return results
+
+        rank = None
+        for i, user in enumerate(results):
+            if user.id == member_id:
+                rank = i + 1
+                break
+
+        return results[:10], rank
 
 # get messages users for top
-async def get_top_user_messages():
+async def get_top_user_messages(member_id: int):
     async with async_session() as session:
-        results = await session.execute(select(User.id, User.count_messages).order_by(desc(User.count_messages)).limit(10))
+        results = await session.execute(select(User.id, User.count_messages).order_by(desc(User.count_messages)))
         results = results.all()
-        return results
+
+        rank = None
+        for i, user in enumerate(results):
+            if user.id == member_id:
+                rank = i + 1
+                break
+
+        return results[:10], rank
 
 '''Voice activity'''
 
@@ -158,11 +172,18 @@ async def null_user_dates(member_id: int):
         await session.commit()
 
 # get voice activity users for top
-async def get_top_user_online():
+async def get_top_user_online(member_id):
     async with async_session() as session:
         results = await session.execute(select(VoiceActivity.id, VoiceActivity.total_hours, VoiceActivity.total_minutes).order_by(desc(VoiceActivity.total_hours), desc(VoiceActivity.total_minutes)))
         results = results.all()
-        return results
+
+        rank = None
+        for i, user in enumerate(results):
+            if user.id == member_id:
+                rank = i + 1
+                break
+
+        return results[:10], rank
     
 '''Marriages'''
 
@@ -199,11 +220,18 @@ async def get_info_marriage(member_id: int):
         return results.first()
     
 # get voice activity for top
-async def get_top_marriage_online():
+async def get_top_marriage_online(member_id: int):
     async with async_session() as session:
-        results = await session.execute(select(Marriage.partner_1, Marriage.partner_2, func.json_extract(Marriage.love_room, "$.total_hours").label("total_hours"), func.json_extract(Marriage.love_room, "$.total_minutes").label("total_minutes")).order_by(desc("total_hours"), desc("total_minutes")).limit(10))
+        results = await session.execute(select(Marriage.partner_1, Marriage.partner_2, func.json_extract(Marriage.love_room, "$.total_hours").label("total_hours"), func.json_extract(Marriage.love_room, "$.total_minutes").label("total_minutes")).order_by(desc("total_hours"), desc("total_minutes")))
         results = results.all()
-        return results
+
+        rank = None
+        for i, user in enumerate(results):
+            if user.partner_1 == member_id or user.partner_2 == member_id:
+                rank = i + 1
+                break
+
+        return results[:10], rank
     
 '''Personal_roles'''
 
@@ -458,11 +486,18 @@ async def is_user_already_owner(member_id: int):
         return True if result is not None else False
 
 # get voice activity for top
-async def get_top_personal_room_online():
+async def get_top_personal_room_online(member_id: int):
     async with async_session() as session:
-        results = await session.execute(select(PersonalRoom.id, func.json_extract(PersonalRoom.personal_room, "$.total_hours").label("total_hours"), func.json_extract(PersonalRoom.personal_room, "$.total_minutes").label("total_minutes")).order_by(desc("total_hours"), desc("total_minutes")).limit(10))
+        results = await session.execute(select(PersonalRoom.id, PersonalRoom.owner, func.json_extract(PersonalRoom.personal_room, "$.total_hours").label("total_hours"), func.json_extract(PersonalRoom.personal_room, "$.total_minutes").label("total_minutes")).order_by(desc("total_hours"), desc("total_minutes")))
         results = results.all()
-        return results
+
+        rank = None
+        for i, user in enumerate(results):
+            if user.owner == member_id:
+                rank = i + 1
+                break
+
+        return results[:10], rank
     
 '''Transactions'''
 

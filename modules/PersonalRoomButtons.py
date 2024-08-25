@@ -717,8 +717,8 @@ class RoomsInfo(View):
         self.select_menu = StringSelect(
             placeholder = '🔎 Выберите меню',
             options = [
-                SelectOption(label='Основная информация', value='main_info'),
-                SelectOption(label='Участники', value='members_info'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Основная информация', value='main_info'),
+                SelectOption(emoji='<:dot_mewbae:1276887777937588365>', label='Участники', value='members_info'),
             ]
         )
         self.select_menu.callback = self.select_menu_callback

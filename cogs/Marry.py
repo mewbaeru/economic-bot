@@ -36,9 +36,11 @@ class Marry(commands.Cog):
         if await get_marry(ctx.author.id):
             embed = set_active_marry(ctx)
             await ctx.response.send_message(embed=embed, ephemeral=True)
+            return
         elif await get_marry(member.id):
             embed = set_active_marry_member(ctx, member)
             await ctx.response.send_message(embed=embed, ephemeral=True)
+            return
 
         if balance >= cost_marry:
             embed = set_marry(ctx, member)
