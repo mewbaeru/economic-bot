@@ -67,6 +67,12 @@ async def get_balance(member_id: int):
         result = await session.scalar(select(User.cash).where(User.id == member_id))
         return result if result is not None else 0
 
+# get count user's messages
+async def get_count_messages(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(User.count_messages).where(User.id == member_id))
+        return result if result is not None else 0
+    
 # transfer of money between users
 async def transfer_money(member_sender_id: int, member_recipient_id, amount: int):
     async with async_session() as session:
@@ -89,6 +95,12 @@ async def get_marry(member_id: int):
         result = await session.scalar(select(User.marry).where(User.id == member_id))
         return result
 
+# get clan membership
+async def get_clan_membership(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(User.clan).where(User.id == member_id))
+        return result
+    
 # get balance users for top
 async def get_top_user_balance(member_id: int):
     async with async_session() as session:
@@ -262,11 +274,11 @@ async def get_all_roles_users(member_id: int):
     async with async_session() as session:
         results = await session.execute(select(PersonalRole.id).where(PersonalRole.owner == member_id))
         return results.scalars().all()
-    
+
 # get time to pay
-async def get_time_to_pay(id: int):
+async def get_time_to_pay(role_id: int):
     async with async_session() as session:
-        result = await session.scalar(select(PersonalRole.time).where(or_(PersonalRole.owner == id, PersonalRole.id == id)))
+        result = await session.scalar(select(PersonalRole.time).where(PersonalRole.id == role_id))
         return result
 
 # update time to pay
@@ -394,6 +406,18 @@ async def is_exists_room(id: int):
         result = await session.scalar(select(PersonalRoom).where(or_(PersonalRoom.owner == id, PersonalRoom.co_owner == id, PersonalRoom.id == id)))
         return True if result is not None else False
 
+# if personal room owner is exists
+async def is_exists_room_owner(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom).where(PersonalRoom.owner == member_id))
+        return True if result is not None else False
+    
+# get all rooms users where he is owner and co-owner
+async def get_all_rooms_user(member_id: int):
+    async with async_session() as session:
+        results = await session.execute(select(PersonalRoom.id).where(or_(PersonalRoom.owner == member_id, PersonalRoom.co_owner == member_id)))
+        return results.scalars().all()
+    
 # get data personal room
 async def get_info_room(id: int):
     async with async_session() as session:

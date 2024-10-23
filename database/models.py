@@ -21,6 +21,7 @@ class User(Base):
     count_messages: Mapped[int] = mapped_column(default=0)
     daily: Mapped[int] = mapped_column(nullable=True)
     marry: Mapped[bool] = mapped_column(default=False)
+    clan: Mapped[bool] = mapped_column(default=False)
 
 class VoiceActivity(Base):
     __tablename__ = 'voice_activity'
