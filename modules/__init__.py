@@ -1,6 +1,7 @@
 from .PersonalRolesButtons import *
 from .PersonalRoomButtons import *
 from .TransactionButtons import *
+from .AdminPanelButtons import *
 from .GamesButtons import *
 from .MarryButtons import *
 from .ShopButtons import *

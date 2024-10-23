@@ -118,7 +118,6 @@ def set_manage_role(ctx: commands.Context):
 
 def set_edit_role(ctx: commands.Context, role: disnake.role, give_by_user: list, time_pay: int, cost_role_create: int, shop_status: bool, shop_cost: int):
     members_with_role = ', '.join(give_by_user) if give_by_user != 0 else "нет пользователей с этой ролью"
-
     personal_roles_embed = Embed(description=f"**Название роли:** {role.mention};\n**Цвет роли:** `{role.color}`;\n" \
                                  f"**Выдана пользователям:** {members_with_role};\n**Время оплаты:** <t:{time_pay}>.",
                                  color=0x2f3136)
@@ -597,6 +596,13 @@ def set_create_room(ctx: commands.Context, role: disnake.role):
     return personal_rooms_embed
 
 # room manage
+def set_manage_room(ctx: commands.Context):
+    personal_rooms_embed = Embed(description=f"{ctx.author.mention}, выберите комнату для **взаимодействия**.",
+                                 color=0x2f3136)
+    personal_rooms_embed.set_author(name=f"{ctx.guild.name} | Управление личной комнатой", icon_url=ctx.guild.icon.url)
+    personal_rooms_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return personal_rooms_embed
+
 def set_edit_room(ctx: commands.Context, room_name: str, role: disnake.role, co_owner: int, time_pay: int, members: list, user_limit: int, cost_room_create: int):
     time = datetime.fromtimestamp(time_pay)
     formatted_time = time.strftime("%d.%m.%Y")
@@ -979,8 +985,149 @@ def set_rp(ctx: commands.Context, member: disnake.Member, act: str, action_on_on
     else:
         user = f'{prepositions} {member.mention}'
 
-    role_play_embed =  Embed(description=f"> {ctx.author.mention} {act} {user}",
-                             color=0x2f3136)
+    role_play_embed = Embed(description=f"> {ctx.author.mention} {act} {user}",
+                            color=0x2f3136)
     role_play_embed.set_image(file=random_gif_path)
     role_play_embed.set_author(name=f"{ctx.guild.name} | Социальные команды", icon_url=ctx.guild.icon.url)
     return role_play_embed
+
+# admin panel
+def set_admin_panel(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> Выберите операцию для **взаимодействия** с {member.mention}.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_error_admin_panel(ctx: commands.Context):
+    admin_panel_embed = Embed(title="Панель администратора",
+                              description=f"{ctx.author.mention}, у Вас недостаточно прав для использования этой команды.",
+                              color=0x2f3136)
+    return admin_panel_embed
+
+def set_manipulate_balance(ctx: commands.Context, member: disnake.Member, balance: int):
+    admin_panel_embed = Embed(description=f"> Управление **балансом** пользователя {member.mention}.",
+                              color=0x2f3136)
+    admin_panel_embed.add_field(name="Монеты пользователя:", value=f"```{balance}```")
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_manipulate_roles(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> Управление **ролями** пользователя {member.mention}.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_manipulate_room(ctx: commands.Context, member: disnake.Member, role: disnake.role, room_name: str):
+    admin_panel_embed = Embed(description=f"> Управление **комнатой** пользователя {member.mention}.\n\n" \
+                              f"**Роль:** {role.mention};\n" \
+                              f"**Название:** `{room_name}`.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_not_room_for_manipulate(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> У пользователя {member.mention} нет личной комнаты.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+# balance manipulate
+def set_give_money_by_admin(ctx: commands.Context, member: disnake.Member, amount: int):
+    admin_panel_embed = Embed(description=f"> Вы **успешно** перевели пользователю {member.mention} {amount} <:coin_mewbae:1272661482991124481>.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_take_money_by_admin(ctx: commands.Context, member: disnake.Member, amount: int):
+    admin_panel_embed = Embed(description=f"> Вы **успешно** сняли у пользователя {member.mention} {amount} <:coin_mewbae:1272661482991124481>.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+# role manipulate
+def set_invalid_color_for_modal(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> Вы **некорректно** вели цвет для роли.\nНеобходимо ввести цвет в формате HEX _(#ffffff)_.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_create_role_for_modal(ctx: commands.Context, member: disnake.Member, role: disnake.role):
+    admin_panel_embed = Embed(description=f"> Вы **успешно** создали личную роль {role.mention} для пользователя {member.mention}",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_manipulate_role(ctx: commands.Context, member: disnake.Member, role: disnake.role):
+    admin_panel_embed = Embed(description=f"> Управление **ролью** {role.mention} пользователя {member.mention}.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_not_roles_for_manipulate(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> У пользователя {member.mention} нет личных ролей.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_change_name_role_by_admin(ctx: commands.Context, member: disnake.Member, role: disnake.role):
+    admin_panel_embed = Embed(description=f"> Название роли {role.mention} **успешно** изменено.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_delete_role_by_admin(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> Роль пользователя {member.mention} **успешно** удалена.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+# room manipulate
+def set_invalid_users_limit_for_modal(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> Вы **некорректно** ввели лимит пользователей для комнаты.\nНеобходимо выбрать `5/10/15/20`.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_create_room_for_modal(ctx: commands.Context, member: disnake.Member, role: disnake.role):
+    admin_panel_embed = Embed(description=f"> Вы **успешно** создали личную комнату {role.mention} для пользователя {member.mention}",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
+
+def set_delete_room_by_admin(ctx: commands.Context, member: disnake.Member):
+    admin_panel_embed = Embed(description=f"> Комната пользователя {member.mention} **успешно** удалена.",
+                              color=0x2f3136)
+    admin_panel_embed.set_author(name=f"{ctx.guild.name} | Панель администратора", icon_url=ctx.guild.icon.url)
+    admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
+    admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
+    return admin_panel_embed
