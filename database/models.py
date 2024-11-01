@@ -1,4 +1,4 @@
-from sqlalchemy import String, Boolean, Integer, JSON, ForeignKey
+from sqlalchemy import String, Boolean, JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 

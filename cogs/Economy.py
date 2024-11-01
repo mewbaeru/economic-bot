@@ -1,4 +1,3 @@
-import disnake
 from disnake.ext import commands, tasks
 
 from database.requests import add_user, add_user_voice_activity, save_messages_count, remove_user, remove_user_voice_activity

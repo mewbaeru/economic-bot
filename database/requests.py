@@ -1,6 +1,6 @@
 import disnake
 from sqlalchemy import func, desc
-from sqlalchemy import select, delete, update, or_
+from sqlalchemy import select, update, or_
 
 from modules.Logger import *
 from database.models import async_session

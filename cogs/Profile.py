@@ -1,4 +1,3 @@
-from disnake import Option
 from disnake.ext import commands
 from easy_pil import Editor, Canvas, Font, load_image_async
 

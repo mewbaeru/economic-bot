@@ -1,4 +1,3 @@
-import json
 import disnake
 from disnake.ext import commands
 from disnake import Embed

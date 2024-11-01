@@ -3,8 +3,6 @@ from disnake.ext import commands
 from database.requests import get_user_voice_activity_data
 from modules import *
 
-from datetime import datetime, timedelta
-
 guild_id = Utils.get_guild_id()
 
 class Online(commands.Cog):

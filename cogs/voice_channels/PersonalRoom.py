@@ -1,6 +1,6 @@
 from disnake.ext import commands
 
-from database.requests import get_info_room, write_data_personal_room, get_personal_room_data, get_all_personal_rooms_roles, get_user_limit
+from database.requests import write_data_personal_room, get_personal_room_data, get_all_personal_rooms_roles, get_user_limit
 from modules import *
 
 guild_id = Utils.get_guild_id()
