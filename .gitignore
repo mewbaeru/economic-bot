@@ -4,7 +4,9 @@
 __pycache__/
 
 # Distribution / packaging
-assets/
+assets/profile/
+assets/role_play_gif/
+assets/settings.json
 
 # Django stuff:
 *.log
