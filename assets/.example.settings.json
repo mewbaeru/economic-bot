@@ -1,0 +1,40 @@
+{
+    "guild_id": 1122334455667788990,
+
+    "roles": {
+        "owners_role": 1122334455667788990,
+
+        "marry_role": 1122334455667788990,
+
+        "personal_role": 1122334455667788990,
+        "role_of_sending_images": 1122334455667788990,
+        "personal_room": 1122334455667788990
+    },
+
+    "prices": {
+        "marry_create": 1,
+        "change_name_love_room": 1,
+
+        "room_create": 1,
+        "users_limit": {
+            "5": 0,
+            "10": 1,
+            "15": 2,
+            "20": 3
+        },
+
+        "role_create": 1,
+        "role_change_name": 1,
+        "role_change_color": 1,
+
+        "add_role_of_sending_images": 1
+    },
+    
+    "channels": {
+        "entry_love_room": 1122334455667788990,
+        "love_category": 1122334455667788990,
+
+        "entry_personal_room": 1122334455667788990,
+        "personal_room_category": 1122334455667788990
+    }
+}
