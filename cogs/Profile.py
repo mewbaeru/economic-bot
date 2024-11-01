@@ -39,7 +39,7 @@ class Profile(commands.Cog):
         online = await get_user_voice_activity_data(member.id)
         hours = online[3]
         minutes = online[2]
-        formatted_online = f"{hours} ч {minutes} м"
+        formatted_online = f"{hours} ч {round(minutes)} м"
         editor.text((970, 530), formatted_online, color="white", font=font_70_bold, align="left")
 
         clan = await get_clan_membership(member.id)

@@ -1,8 +1,7 @@
 from disnake import Option
 from disnake.ext import commands, tasks
-from disnake.ui import Select
 
-from database.requests import get_balance, is_exists_room, get_info_room, get_personal_room_data, get_time_to_pay_room, delete_room, update_time_to_pay_room, get_all_owners
+from database.requests import get_balance, is_exists_room, get_info_room, get_personal_room_data, get_time_to_pay_room, delete_room, update_time_to_pay_room, get_all_owners, get_personal_room_role_id
 from modules import *
 
 guild_id = Utils.get_guild_id()
@@ -119,6 +118,12 @@ class PersonalRoomRole(commands.Cog):
                         # add new transaction
                         await add_transaction(owner_id, f'Оплата личной комнаты', -settings_prices.get('room_create'), datetime.now())
                     else:
+                        role_id = await get_personal_room_role_id(owner_id)
+                        guild = await self.client.fetch_guild(guild_id)
+                        roles = await guild.fetch_roles()
+                        role = disnake.utils.get(roles, id=role_id)
+                        await role.delete()
+
                         await delete_room(owner_id)
                         logger.info(f'/payment room - delete room - owner: {owner_id}')
         else:

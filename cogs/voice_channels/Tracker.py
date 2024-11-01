@@ -26,15 +26,15 @@ class Tracker(commands.Cog):
 
             new_time = left_time - join_time
 
+            total_minutes = user_data[2]
+            total_hours = user_data[3]
+
             hours, remainder = divmod(new_time.seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
+            minutes = remainder / 60
 
-            total_hours = hours + user_data[2]
-            total_minutes = minutes + user_data[3]
-
-            if total_minutes >= 60:
-                total_minutes -= 60
-                total_hours += 1
+            total_minutes += minutes
+            total_hours += hours + int(total_minutes // 60)
+            total_minutes %= 60
             
             await update_user_voice_activity(member.id, 'default', total_hours, total_minutes)
         await null_user_dates(member.id)
@@ -46,15 +46,15 @@ class Tracker(commands.Cog):
 
             new_time = left_time - join_time
 
+            total_hours = (await get_data_love_room(member))['total_hours']
+            total_minutes = (await get_data_love_room(member))['total_minutes']
+
             hours, remainder = divmod(new_time.seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
+            minutes = remainder / 60
 
-            total_hours = hours + (await get_data_love_room(member))['total_hours']
-            total_minutes = minutes + (await get_data_love_room(member))['total_minutes']
-
-            if total_minutes >= 60:
-                total_minutes -= 60
-                total_hours += 1
+            total_minutes += minutes
+            total_hours += hours + int(total_minutes // 60)
+            total_minutes %= 60
             
             await update_user_voice_activity(member, 'love', total_hours, total_minutes)
         await null_user_dates(member)
@@ -66,16 +66,16 @@ class Tracker(commands.Cog):
 
             new_time = left_time - join_time
 
+            total_hours = (await get_personal_room_data(role))['total_hours']
+            total_minutes = (await get_personal_room_data(role))['total_minutes']
+
             hours, remainder = divmod(new_time.seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
+            minutes = remainder / 60
 
-            total_hours = hours + (await get_personal_room_data(role))['total_hours']
-            total_minutes = minutes + (await get_personal_room_data(role))['total_minutes']
+            total_minutes += minutes
+            total_hours += hours + int(total_minutes // 60)
+            total_minutes %= 60
 
-            if total_minutes >= 60:
-                total_minutes -= 60
-                total_hours += 1
-            
             await update_user_voice_activity(role, 'room', total_hours, total_minutes)
         await null_user_dates(member)
     

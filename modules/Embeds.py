@@ -40,11 +40,18 @@ def set_invalid_time(ctx: commands.Context, action: str):
     return error_embed
 
 def set_error_symbols_change_name(ctx: commands.Context, action: str):
-    personal_roles_embed = Embed(title=f"{action}",
+    error_embed = Embed(title=f"{action}",
                                  description=f"{ctx.author.mention}, количество символов **не должно превышать 100** для изменения названия.",
                                  color=0x2f3136)
-    personal_roles_embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    return personal_roles_embed
+    error_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return error_embed
+
+def set_error_marry(ctx: commands.Context, member: disnake.Member):
+    error_embed = Embed(description=f"Пользователь {member.mention} не состоит в браке.",
+                        color=0x2f3136)
+    error_embed.set_author(name=f"{ctx.guild.name} | Любовный профиль пользователя", icon_url=ctx.guild.icon.url)
+    error_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return error_embed
 
 # timely embeds
 def set_timely_embed(ctx: commands.Context, money: int):
@@ -895,7 +902,7 @@ def set_info_members_room(ctx: commands.Context, room_name: str, members: list, 
 
 # online
 def set_online_user(ctx: commands.Context, member: disnake.Member, total_minutes: int, total_hours: int):
-    online_embed = Embed(description=f"> Общий голосовой онлайн\n```{total_hours} ч {total_minutes} м```",
+    online_embed = Embed(description=f"> Общий голосовой онлайн\n```{total_hours} ч {round(total_minutes)} м```",
                          color=0x2f3136)
     online_embed.set_author(name=f"{ctx.guild.name} | Голосовой онлайн — {member.name}", icon_url=ctx.guild.icon.url)
     online_embed.set_thumbnail(url=member.display_avatar.url)
@@ -921,7 +928,7 @@ def set_top_online(ctx: commands.Context, top: list, author_rank: int):
     description = '> Топ 10 пользователей\n'
 
     for i, (user_id, total_hours, total_minutes) in enumerate(top):
-        description += f"**{i+1}.** <@{user_id}> — `{total_hours} ч {total_minutes} мин`\n"
+        description += f"**{i+1}.** <@{user_id}> — `{total_hours} ч {round(total_minutes)} мин`\n"
     
     description += f"\nВаше место в топе — **{author_rank}**"
     top_embed.description = description
@@ -949,7 +956,7 @@ def set_top_marriage(ctx: commands.Context, top: list, author_rank: int):
     description = '> Топ 10 любовных комнат\n'
 
     for i, (partner_1, partner_2, total_hours, total_minutes) in enumerate(top):
-        description += f"**{i+1}.** <@{partner_1}> ♡ <@{partner_2}> — `{total_hours} ч {total_minutes} мин`\n"
+        description += f"**{i+1}.** <@{partner_1}> ♡ <@{partner_2}> — `{total_hours} ч {round(total_minutes)} мин`\n"
     
     description += f"\nВаше место в топе — **{author_rank}**" if author_rank is not None else ""
     top_embed.description = description
@@ -963,7 +970,7 @@ def set_top_personal_room(ctx: commands.Context, top: list, author_rank: int):
     description = '> Топ 10 личный комнат\n'
 
     for i, (role_id, owner, total_hours, total_minutes) in enumerate(top):
-        description += f"**{i+1}.** <@&{role_id}> — `{total_hours} ч {total_minutes} мин`\n"
+        description += f"**{i+1}.** <@&{role_id}> — `{total_hours} ч {round(total_minutes)} мин`\n"
     
     description += f"\nВаше место в топе — **{author_rank}**" if author_rank is not None else ""
     top_embed.description = description
@@ -1131,3 +1138,33 @@ def set_delete_room_by_admin(ctx: commands.Context, member: disnake.Member):
     admin_panel_embed.set_thumbnail(url=member.display_avatar.url)
     admin_panel_embed.set_footer(text=f'Выполнил(а): {ctx.author.name}', icon_url=ctx.user.avatar.url)
     return admin_panel_embed
+
+#love profile
+def set_cuccess_change_name_love_room(ctx: commands.Context, name_love_room: str):
+    love_profile_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** изменили название любовной комнаты на {name_love_room}!",
+                               color=0x2f3136)
+    love_profile_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return love_profile_embed
+
+def set_cuccess_update_balance_love_room(ctx: commands.Context, amount: int, balance: int):
+    love_profile_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** пополнили баланс любовной комнаты на {amount}!",
+                               color=0x2f3136)
+    love_profile_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    love_profile_embed.set_footer(text=f"Баланс Вашей любовной комнаты на данный момент составляет {balance} монет")
+    return love_profile_embed
+
+def set_confirmation_divorce_marriage(ctx: commands.Context):
+    love_profile_embed = Embed(description=f"{ctx.author.mention}, Вы **уверены**, что хотите аннулировать брак?\n" \
+                               "Для **согласия** нажмите <:check_mark_mewbae:1276598021806751870>, для **отказа** нажмите <:negative_squared_cross_mark_mewb:1276598003699814510>.",
+                               color=0x2f3136)
+    love_profile_embed.set_author(name=f"{ctx.guild.name} | Аннулирование брака", icon_url=ctx.guild.icon.url)
+    love_profile_embed.set_footer(text='Возврат средств, потраченных на брак, не осуществляется')
+    love_profile_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return love_profile_embed
+
+def set_success_divorce_marriage(ctx: commands.Context):
+    love_profile_embed = Embed(description=f"{ctx.author.mention}, Вы **успешно** расстрогли брак!",
+                               color=0x2f3136)
+    love_profile_embed.set_author(name=f"{ctx.guild.name} | Аннулирование брака", icon_url=ctx.guild.icon.url)
+    love_profile_embed.set_thumbnail(url=ctx.author.display_avatar.url)
+    return love_profile_embed

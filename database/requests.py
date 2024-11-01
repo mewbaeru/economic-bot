@@ -129,6 +129,31 @@ async def get_top_user_messages(member_id: int):
 
         return results[:10], rank
 
+# remove user from db
+async def remove_user(member: disnake.Member):
+    async with async_session() as session:
+        if not member.bot:
+            user = await session.scalar(select(User).where(User.id == member.id))
+            if user:
+                user_marriage = await session.scalar(select(Marriage).where(or_(Marriage.partner_1 == member.id, Marriage.partner_2 == member.id)))
+                if user_marriage:
+                    await session.delete(user_marriage)
+
+                user_personal_roles = await session.scalar(select(PersonalRole).where(PersonalRole.owner == member.id))
+                if user_personal_roles:
+                    await session.delete(user_personal_roles)
+
+                user_personal_room = await session.scalar(select(PersonalRoom).where(PersonalRoom.owner == member.id))
+                if user_personal_room:
+                    await session.delete(user_personal_room)
+
+                user_transactions = await session.scalar(select(Transaction).where(Transaction.member_id == member.id))
+                if user_transactions:
+                    await session.delete(user_transactions)
+
+                await session.delete(user)
+                await session.commit()
+
 '''Voice activity'''
 
 # add user voice activity
@@ -164,17 +189,21 @@ async def update_user_voice_activity(id: int, type: str, total_hours: int, total
         elif type == 'love':
             love_room_data = await get_data_love_room(id)
 
+            love_room_data['joined_at'] = 0
             love_room_data['total_hours'] = total_hours
             love_room_data['total_minutes'] = total_minutes
 
             await session.execute(update(Marriage).where(or_(Marriage.partner_1 == id, Marriage.partner_2 == id)).values(love_room=json.dumps(love_room_data)))
+            await session.execute(update(VoiceActivity).where(VoiceActivity.id == id).values(total_minutes=total_minutes, total_hours=total_hours))
         elif type == 'room':
             personal_room_data = await get_personal_room_data(id)
 
+            personal_room_data['joined_at'] = 0
             personal_room_data['total_hours'] = total_hours
             personal_room_data['total_minutes'] = total_minutes
 
             await session.execute(update(PersonalRoom).where(PersonalRoom.id == id).values(personal_room=json.dumps(personal_room_data)))
+            await session.execute(update(VoiceActivity).where(VoiceActivity.id == id).values(total_minutes=total_minutes, total_hours=total_hours))
         await session.commit()
 
 # remove the user's data about logging into channel
@@ -184,7 +213,7 @@ async def null_user_dates(member_id: int):
         await session.commit()
 
 # get voice activity users for top
-async def get_top_user_online(member_id):
+async def get_top_user_online(member_id: int):
     async with async_session() as session:
         results = await session.execute(select(VoiceActivity.id, VoiceActivity.total_hours, VoiceActivity.total_minutes).order_by(desc(VoiceActivity.total_hours), desc(VoiceActivity.total_minutes)))
         results = results.all()
@@ -196,7 +225,16 @@ async def get_top_user_online(member_id):
                 break
 
         return results[:10], rank
-    
+
+# delete user's voice activity
+async def remove_user_voice_activity(member: disnake.Member):
+    if not member.bot:
+        async with async_session() as session:
+            result = await session.scalar(select(VoiceActivity).where(VoiceActivity.id == member.id))
+            if result:
+                await session.delete(result)
+                await session.commit()
+
 '''Marriages'''
 
 async def add_new_marriage(member_id_1: int, member_id_2: int):
@@ -244,7 +282,59 @@ async def get_top_marriage_online(member_id: int):
                 break
 
         return results[:10], rank
-    
+
+# update love room balance
+async def update_love_room_balance(member_id: int, amount: int):
+    async with async_session() as session:
+        await session.execute(update(Marriage).where(or_(Marriage.partner_1 == member_id, Marriage.partner_2 == member_id)).values(balance=Marriage.balance+amount))
+        await session.commit()
+
+# divorce marriage 
+async def divorce_marriage(id: int):
+    async with async_session() as session:
+        marriage = await session.scalar(select(Marriage).where(or_(Marriage.partner_1 == id, Marriage.partner_2 == id, Marriage.id == id)))
+        await session.delete(marriage)
+
+        partner_1 = marriage.partner_1
+        partner_2 = marriage.partner_2
+
+        await session.execute(update(User).where(or_(User.id == partner_1, User.id == partner_2)).values(marry=False))
+        await session.execute(update(User).where(or_(User.id == partner_1, User.id == partner_2)).values(marry=False))
+
+        await session.commit()
+
+# get all marriages for payment 
+async def get_all_marriages():
+    async with async_session() as session:
+        results = await session.scalars(select(Marriage.id).distinct())
+        results = results.all()
+        return results if results else False
+
+# get time to pay
+async def get_time_to_pay_love_room(marriage_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(Marriage.time).where(Marriage.id == marriage_id))
+        return result
+
+# get love room balance 
+async def get_balance_love_room(marriage_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(Marriage.balance).where(Marriage.id == marriage_id))
+        return result
+
+# update time to pay
+async def update_time_to_pay_love_room(marriage_id: int):
+    async with async_session() as session:
+        new_time = datetime.now() + timedelta(days=30)
+        await session.execute(update(Marriage).where(Marriage.id == marriage_id).values(time=int(new_time.timestamp())))
+        await session.commit()
+
+# take money from balance love room
+async def take_money_love_room(marriage_id: int, amount: int):
+    async with async_session() as session:
+        await session.execute(update(Marriage).where(Marriage.id == marriage_id).values(balance=Marriage.balance - amount))
+        await session.commit()
+
 '''Personal_roles'''
 
 # add new role to db
@@ -424,6 +514,12 @@ async def get_info_room(id: int):
         results = await session.execute(select(PersonalRoom.id, PersonalRoom.owner, PersonalRoom.co_owner, PersonalRoom.time, PersonalRoom.limit).where(or_(PersonalRoom.owner == id, PersonalRoom.co_owner == id, PersonalRoom.id == id)))
         return results.first()
 
+# get role room id by owner
+async def get_personal_room_role_id(member_id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom.id).where(PersonalRoom.owner == member_id))
+        return result if result else False
+    
 # get data voice channel
 async def get_personal_room_data(id: int):
     async with async_session() as session:
@@ -447,6 +543,12 @@ async def update_room_name(member_id: int, type: str, value: str):
         await session.execute(update(PersonalRoom).where(or_(PersonalRoom.owner == member_id, PersonalRoom.co_owner == member_id)).values(personal_room=json.dumps(personal_room_data)))
         await session.commit()
 
+# get user limit
+async def get_user_limit(id: int):
+    async with async_session() as session:
+        result = await session.scalar(select(PersonalRoom.limit).where(PersonalRoom.id == id))
+        return result
+    
 # update user limit
 async def update_user_limit(member_id: int, new_limit: str):
     async with async_session() as session:

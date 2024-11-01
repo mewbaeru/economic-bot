@@ -6,7 +6,6 @@ from database.requests import take_money, add_transaction, add_new_marriage
 
 from datetime import datetime
 
-# coinflip
 class MarryView(View):
     def __init__(self, ctx, member, role_marry, cost_marry, timeout=60):
         super().__init__(timeout=timeout)

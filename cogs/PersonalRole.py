@@ -80,15 +80,6 @@ class PersonalRoles(commands.Cog):
         else:
             embed = set_not_roles(ctx)
             await ctx.send(embed=embed, ephemeral=True, view=View())
-
-    @tasks.loop(hours=24)
-    async def monthly_payment(self, ctx):
-        if await is_exists_role(ctx.author.id):
-            if datetime.now() >= await get_time_to_pay(ctx.author.id):
-                if await get_balance(ctx.author.id) >= settings_prices.get('role_create'):
-                    await take_money(ctx.author.id, settings_prices.get('role_create'))
-                else:
-                    await delete_role(ctx.author.id)
     
     @tasks.loop(hours=24)
     async def monthly_payment(self):
@@ -100,8 +91,6 @@ class PersonalRoles(commands.Cog):
                     time_to_pay = await get_time_to_pay(role_id)
                     if time_to_pay and datetime.now() >= datetime.fromtimestamp(time_to_pay):
                         if await get_balance(owner_id) >= settings_prices.get('role_create'):
-                            print(await get_balance(owner_id))
-                            print(settings_prices.get('role_create'))
                             await update_time_to_pay(role_id)
                             await take_money(owner_id, settings_prices.get('role_create'))
 
@@ -109,7 +98,13 @@ class PersonalRoles(commands.Cog):
                             # add new transaction
                             await add_transaction(owner_id, f'Оплата личной роли', -settings_prices.get('role_create'), datetime.now())
                         else:
+                            guild = await self.client.fetch_guild(guild_id)
+                            roles = await guild.fetch_roles()
+                            role = disnake.utils.get(roles, id=role_id)
+                            await role.delete()
+
                             await delete_role(role_id)
+
                             logger.info(f'/payment role - delete role - owner: {owner_id}')
         else:
             logger.info(f'/payment role - no roles')

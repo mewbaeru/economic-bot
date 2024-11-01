@@ -1,6 +1,6 @@
 from disnake.ext import commands
 
-from database.requests import get_info_room, write_data_personal_room, get_personal_room_data, get_all_personal_rooms_roles
+from database.requests import get_info_room, write_data_personal_room, get_personal_room_data, get_all_personal_rooms_roles, get_user_limit
 from modules import *
 
 guild_id = Utils.get_guild_id()
@@ -56,12 +56,13 @@ class PersonalRooms(commands.Cog):
                         }
 
                         custom_name = personal_room_data['name']
+                        user_limit = await get_user_limit(self.role.id)
 
                         if custom_name != 0:
                             room_name = custom_name
                         else:
                             room_name = self.role.name
-                        channel = await self.guild.create_voice_channel(room_name, bitrate=bitrate, overwrites=overwrites, category=self.personal_room_category)
+                        channel = await self.guild.create_voice_channel(room_name, bitrate=bitrate, overwrites=overwrites, category=self.personal_room_category, user_limit=user_limit)
                         
                         await write_data_personal_room(self.role.id, 'id', channel.id)
                         await member.edit(voice_channel=channel)

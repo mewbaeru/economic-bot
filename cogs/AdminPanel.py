@@ -1,7 +1,6 @@
 import disnake 
 from disnake.ext import commands
 
-from database.requests import get_balance
 from modules import *
 
 guild_id = Utils.get_guild_id()
