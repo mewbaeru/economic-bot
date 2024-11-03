@@ -20,3 +20,8 @@ TOKEN=your_bot_token
 ```
 + Create a file `settings.json` _(to fill it out, take it as a basis [`example.settings.json`](https://github.com/mewbaeru/economic-bot/blob/main/assets/.example.settings.json)_.
 + Fill in the `assets/profile/font` _(**ttf**-expanded content)_ and `assets/role_play_gif` _(**gif**-expanded content)_ folders.
+  
+# Running the bot
+```
+python main.py
+```
