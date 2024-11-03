@@ -35,4 +35,4 @@ python main.py
 ---
 
 # Documentation
-> The user documentation can be obtained from [this link](https://github.com/mewbaeru/economic-bot/blob/main/index.md).
+The user documentation can be obtained from [this link](https://github.com/mewbaeru/economic-bot/blob/main/index.md).
