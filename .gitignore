@@ -4,8 +4,8 @@
 __pycache__/
 
 # Distribution / packaging
-assets/profile/
-assets/role_play_gif/
+assets/profile/font/*.ttf
+assets/role_play_gif/*/*.gif
 assets/settings.json
 
 # Django stuff:
