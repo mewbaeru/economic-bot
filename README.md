@@ -4,5 +4,5 @@
 
 > This project shows only the visual components of the bot in Discord.
 
-![Static Badge](https://img.shields.io/badge/mewbaeru-EconomyBot)
+![Static Badge](https://img.shields.io/badge/mewbaeru-economic-bot-EconomyBot)
 ![GitHub top language](https://img.shields.io/github/languages/top/mewbaeru/economic-bot)
