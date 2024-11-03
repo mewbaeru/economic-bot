@@ -1,4 +1,5 @@
 # economic-bot
+![Static Badge](https://img.shields.io/badge/mewbaeru-economybot-economybot)
 ![Python Version](https://img.shields.io/badge/Python-3.12.4-blue.svg)
 
 > [!IMPORTANT]
