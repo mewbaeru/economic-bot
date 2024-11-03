@@ -36,5 +36,10 @@
 
         "entry_personal_room": 1122334455667788990,
         "personal_room_category": 1122334455667788990
+    },
+
+    "fonts": {
+        "relative_path_regular_font_50": "assets/profile/font/...",
+        "relative_path_bold_font_70": "assets/profile/font/..."
     }
 }
