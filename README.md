@@ -1,7 +1,8 @@
 # economic-bot
 ![Static Badge](https://img.shields.io/badge/mewbaeru-EconomyBot-economybot)
 ![Python Version](https://img.shields.io/badge/Python-3.12.4-blue.svg)
-![GitHub top language](https://img.shields.io/github/languages/top/mewbaeruv/economic-bot)
+![GitHub Repo stars](https://img.shields.io/github/stars/mewbaeru/economic-bot)
+![GitHub issues](https://img.shields.io/github/issues/mewbaeru/economic-bot)
 
 > [!IMPORTANT]
 > This project shows only the visual components of the bot in Discord.
