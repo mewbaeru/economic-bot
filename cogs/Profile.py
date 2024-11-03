@@ -6,9 +6,15 @@ from modules import *
 
 guild_id = Utils.get_guild_id()
 
+# get fonts data from settings
+try: 
+    settings_fonts = Utils.get_fonts()
+except Exception:
+    logger.error('failed to load settings')
+
 # font
-font_50 = Font('./assets/profile/font/avenirnext.ttf', size=50)
-font_70_bold = Font('./assets/profile/font/avenir-next-bold.ttf', size=70)
+font_50 = Font(f'./{settings_fonts.get('relative_path_regular_font_50')}', size=50)
+font_70_bold = Font(f'./{settings_fonts.get('relative_path_bold_font_70')}', size=70)
 
 class Profile(commands.Cog):
     def __init__(self, client):

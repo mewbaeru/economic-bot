@@ -40,7 +40,14 @@ class Utils:
             data = json.load(settings)
             settings_channels = data.get('channels')
             return settings_channels
-        
+    
+    # info about fonts
+    def get_fonts():
+        with open('./assets/settings.json', 'r', encoding='utf-8') as settings:
+            data = json.load(settings)
+            settings_fonts = data.get('fonts')
+            return settings_fonts
+
     # server games
     def start_game(self, member_id):
         self.ActiveGames.append(member_id)
