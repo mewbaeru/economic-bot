@@ -1,4 +1,6 @@
 # economic-bot
+![Python Version](https://img.shields.io/badge/Python-3.12.4-blue.svg)
+
 > [!IMPORTANT]
 > This project shows only the visual components of the bot in Discord.
 
